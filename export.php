@@ -1,7 +1,3 @@
-<!-- 	Nguyen Hai Duong, September 2016 
- 			GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999
--->
-
 <?php 
 
 session_start();
@@ -24,7 +20,7 @@ if (isset($_POST["btn_submit"])) {
     $end_date_search = (isset($_POST['end_date_search']) && $_POST['end_date_search'] != '') ? $_POST['end_date_search']: '';
     $page_size = (isset($_POST['page_size']) && $_POST['page_size'] != '') ? $_POST['page_size'] : '';
 
-    header('Location: export.php?page=1&start_date='. $start_date_search . '&end_date='. $end_date_search. '&page_size='. $page_size);
+    header('Location: export.php?page=1&start_date='. $start_date_search . '&end_date='. $end_date_search. '&page_size='. $page_size. '&hostid='. $_POST['hostid']);
     
     //echo '<script type="text/javascript">alert('. $start_date_search. ');</script>';
     //echo '<script type="text/javascript">alert('. $end_date_search. ');</script>';
@@ -33,9 +29,20 @@ if (isset($_POST["btn_submit"])) {
 
 $conn = ConnectDatabse();
 
+// Get host
+$sqlhost = "SELECT * FROM host order by name";
+$qhost = mysqli_query($conn, $sqlhost) or die("error to fetch tot hosts data");
+$dataHost[] = null;
+
+while( $row = mysqli_fetch_assoc($qhost) ) { 
+    $dataHost[] = $row;
+}
+
+// ---------- end host
 
 $start_date = (isset($_GET['start_date']) && $_GET['start_date'] != '') ? $_GET['start_date'] : '';
 $end_date = (isset($_GET['end_date']) && $_GET['end_date'] != '') ? $_GET['end_date'] : '';
+$hostid = $_GET['hostid'];
 
 $start_date_search = $start_date;
 $end_date_search = $end_date;
@@ -49,16 +56,22 @@ if ($end_date != ''){
 }
 
 $date_condition = '';
+if($hostid != ""){
+    $date_condition .= ' AND hostid='. $hostid;
+}
+
 if($start_date != '' && $end_date != ''){
-    $date_condition = " AND h.startdate between '" . $start_date . "' and '" . $end_date . "' ";
+    $date_condition .= " AND h.startdate between '" . $start_date . "' and '" . $end_date . "' ";
 } else {
     if($start_date != ''){
-        $date_condition = " AND h.startdate >= '" . $start_date . "'";
+        $date_condition .= " AND h.startdate >= '" . $start_date . "'";
     }
     if($end_date != ''){
-        $date_condition = " AND h.startdate <= '" . $end_date . "'";
+        $date_condition .= " AND h.startdate <= '" . $end_date . "'";
     }
 }
+
+
 
 // BƯỚC 2: TÌM TỔNG SỐ RECORDS
 $result = mysqli_query($conn, 'select count(h.id) as total FROM history h WHERE 1=1 ' . $date_condition);
@@ -89,8 +102,9 @@ $start = ($current_page - 1) * $limit;
 
 // BƯỚC 5: TRUY VẤN LẤY DANH SÁCH TIN TỨC
 // Có limit và start rồi thì truy vấn CSDL lấy danh sách tin tức
-$result = mysqli_query($conn, "SELECT h.id, h.startdate, h.enddate, h.value, h.value as state, d.name, d.id as deviceid, d.objid FROM history h left join device d on h.deviceid = d.id  WHERE 1=1 " . $date_condition . "ORDER BY h.id DESC, h.startdate DESC LIMIT $start, $limit");
-
+$result = mysqli_query($conn, "SELECT h.id, h.startdate, h.enddate, h.value, h.value as state, d.name, d.id as deviceid, d.objid, h.hostid as hostid FROM history h left join device d on h.deviceid = d.id  WHERE 1=1 " . $date_condition . " ORDER BY h.id DESC, h.startdate DESC LIMIT $start, $limit");
+//echo "SELECT h.id, h.startdate, h.enddate, h.value, h.value as state, d.name, d.id as deviceid, d.objid FROM history h left join device d on h.deviceid = d.id  WHERE 1=1 " . $date_condition . " ORDER BY h.id DESC, h.startdate DESC LIMIT $start, $limit";
+//return;
 ?>
 
 <!DOCTYPE html>
@@ -133,6 +147,29 @@ $result = mysqli_query($conn, "SELECT h.id, h.startdate, h.enddate, h.value, h.v
 <hr/>
 <form method="POST" action="export.php">
 <div class='col-lg-12 col-md-12 col-sm-12 col-xs-12' style='padding:10px;text-align:right; margin: 5px; background-color: #c9d9e0;'>
+Chọn trạm: <select id="hostid"  name="hostid">
+    <?php
+
+    foreach ($dataHost as $key => $value) {
+        if($value["id"] == $hostid){
+            $selected = "selected='selected'";
+        } else{
+            $selected = "";
+        }
+
+        if($value["id"] == ""){
+            echo "<option value=''> --- Tất cả --- </option>";
+            continue;
+        }
+
+        //if($key == 0){
+        //    echo "<option value='" . $value["id"] . "' selected>" . $value["name"] . "</option>";
+        //} else{
+            echo "<option value='" . $value["id"] . "' " . $selected . ">#" . $value["id"] . " - " . $value["name"] ."</option>";
+        //}
+    }
+    ?>
+    </select>
 Từ ngày: 
 <?php
 echo '<input type="text" id="start_date_search" name="start_date_search" placeholder="yyyy-mm-dd" value="'. $start_date_search .'" />'
@@ -157,11 +194,11 @@ echo '<input type="text" id="end_date_search" name="end_date_search" placeholder
 <table class='tbllistitem' id="export_table"> 
     <tr>
         <th>
-            Id
+            #
         </th>
-        <!--th>
-            Device Id
-        </th-->
+        <th>
+            Trạm Id
+        </th>
         <th>
             Name
         </th>
@@ -178,7 +215,7 @@ echo '<input type="text" id="end_date_search" name="end_date_search" placeholder
 <?php
 // BƯỚC 6: HIỂN THỊ DANH SÁCH TIN TỨC
 while ($row = mysqli_fetch_assoc($result)){
-    PrintLine($row["id"], $row["type"], $row["name"], $row["state"], $row["flavor"], $row["amplitude"], $row["icon"], $row["deviceid"], $row["objid"], $row["value"], $row["startdate"], $row["enddate"]);
+    PrintLine($row["id"], $row["type"], $row["name"], $row["state"], $row["flavor"], $row["amplitude"], $row["icon"], $row["deviceid"], $row["objid"], $row["value"], $row["startdate"], $row["enddate"], $row["hostid"]);
 }
 ?>
 <tr>
@@ -190,7 +227,7 @@ while ($row = mysqli_fetch_assoc($result)){
 
             // nếu current_page > 1 và total_page > 1 mới hiển thị nút prev
             if ($current_page > 1 && $total_page > 1){
-                echo '<a href="index.php?page='.($current_page-1).'&start_date='. $start_date_search .'&end_date='. $end_date_search .'&page_size='. $page_size_search .'">Prev</a> | ';
+                echo '<a href="?page='.($current_page-1).'&start_date='. $start_date_search .'&end_date='. $end_date_search .'&page_size='. $page_size_search .'&hostid='. $hostid .'">Prev</a> | ';
             }
 
             // Lặp khoảng giữa
@@ -213,13 +250,13 @@ while ($row = mysqli_fetch_assoc($result)){
                     echo '<span>'.$i.'</span> | ';
                 }
                 else{
-                    echo '<a href="?page='.$i.'&start_date='. $start_date_search .'&end_date='. $end_date_search .'&page_size='. $page_size_search .'">'.$i.'</a> | ';
+                    echo '<a href="?page='.$i.'&start_date='. $start_date_search .'&end_date='. $end_date_search .'&page_size='. $page_size_search .'&hostid='. $hostid .'">'.$i.'</a> | ';
                 }
             }
 
             // nếu current_page < $total_page và total_page > 1 mới hiển thị nút prev
             if ($current_page < $total_page && $total_page > 1){
-                echo '<a href="?page='.($current_page+1).'&start_date='. $start_date_search .'&end_date='. $end_date_search .'&page_size='. $page_size_search .'">Next</a> ';
+                echo '<a href="?page='.($current_page+1).'&start_date='. $start_date_search .'&end_date='. $end_date_search .'&page_size='. $page_size_search .'&hostid='. $hostid .'">Next</a> ';
             }
         ?>
         </div>

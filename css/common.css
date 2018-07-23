@@ -1,0 +1,18 @@
+.user-tram{
+    background-color: #c4d3da;
+    height: 35px;
+    padding: 10px;
+    border-left: 1px solid white;
+}
+
+.link{
+    color: white !important;
+    font-size: 12pt;
+}
+.link:first-child{
+    padding-left: 20px;
+}
+
+.div-link{
+    
+}

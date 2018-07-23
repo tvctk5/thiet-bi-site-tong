@@ -1,6 +1,3 @@
-<!-- 	Nguyen Hai Duong, September 2016 
- 			GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999
--->
 
 <?php 
 
@@ -8,16 +5,24 @@ header('Content-Type: text/html; charset=utf-8');
 
 session_start();
 
-include 'function/print-HTML.php';
-include 'sql/sql-function.php';
-
 //tiến hành kiểm tra là người dùng đã đăng nhập hay chưa
 //nếu chưa, chuyển hướng người dùng ra lại trang đăng nhập
 if (!isset($_SESSION['username'])) {
 	 header('Location: login.php');
 }
 
-$conn = ConnectDatabse();
+//include connection file 
+include_once("connection.php");
+$db = new dbObj();
+    $connString =  $db->getConnstring();
+    // where uh.userId in (select Id from user where username = '" . $_SESSION['username'] . "') 
+    $sqlhost = "SELECT h.*, u.code FROM host h join user_host uh on uh.hostId = h.id join user u on u.Id=uh.userId where uh.userId in (select Id from user where username = '" . $_SESSION['username'] . "') order by h.name";
+    $qhost = mysqli_query($connString, $sqlhost) or die("error to fetch tot hosts data");
+    //$dataHost[] = null;
+
+    while( $row = mysqli_fetch_assoc($qhost) ) { 
+        $dataHost[] = $row;
+    }
 
 ?>
 
@@ -25,27 +30,22 @@ $conn = ConnectDatabse();
 <html lang="en"> 
   <head>
     <meta charset="utf-8">
-    <meta refreshpage="true" content="5">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Tran Van Tu</title>
+    <title>Điều khiển tổng</title>
     
     <!-- CSS -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
+    <link rel="stylesheet" type="text/css" href="css/google-font-css.css?family=Open+Sans">
     <link rel="stylesheet" type="text/css" href="fonts/font-awesome/css/font-awesome.min.css">
     <!-- Bootst192rap -->
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="css/jquery-ui.min.css">
     <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" type="text/css" href="css/common.css">
     
     <!-- JS -->
-    <script type="text/javascript" src="js/ion.sound-3.0.7/ion.sound.min.js"></script>
     <script type="text/javascript" src="js/jquery/jquery.js"></script>
     <script type="text/javascript" src="js/jquery/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="js/jquery.ui.touch-punch.min.js"></script>
-    <script type="text/javascript" src="js/jquery.tabletoCSV.js"></script>
-    <script type="text/javascript" src="js/jquery.bpopup.min.js"></script>
-    <script type="text/javascript" src="js/query.js"></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -56,9 +56,6 @@ $conn = ConnectDatabse();
 
   </head>
   <body class="lazy-man">
-   <!-- Element to pop up -->
-   <div id="element_to_pop_up"><img src='loading.gif'/></div>
-   <div id="element_to_pop_up_content" class="content" style="height: auto; width: auto;"></div>
     <!-- Fixed navbar -->
     <div class="container"></div>
     <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -71,123 +68,45 @@ $conn = ConnectDatabse();
         </div>
         <div class="navbar-header">
         
-<center><b style='color: cyan !important;'> Điều khiển thiết bị</b>  
-
-
-	</div>
+        <center>
+        <b style='color: cyan !important;'> Quản lý tổng</b>  
+	      </div>
+      <div class="div-link">
+      <?php
+      if($_SESSION['user']["isAdmin"] == 1){
+        echo " <a href='admin/user.php' target='_blank' class='link'>Quản lý tài khoản</a>  || ";
+        echo "<a href='admin/host.php' target='_blank' class='link'>Quản lý trạm</a> || ";
+        echo "<a href='export.php' target='_blank' class='link'>Nhật ký</a>";
+      }
+      ?>
       </div>
+      </div>
+
     </nav>
     <!-- Conainer -->
     <div class="container">
-
-<!--Hien thi dau vao  =============================================-->
-<label for="name"></label>
-<?php
-function show(){
-echo'<script type="text/javascript"> //alert("qwrwqrtwq");
-function bam(){
-// alert("bam");
-// <?php bamphp(); ?>
-}
-</script>';
-}
-show();
-/*
-$path = '/var/www/lazy/file/vao1.txt';
-$fp = @fopen($path, "r");
-
-// Kiểm tra file mở thành công không
-if (!$fp) {
-    echo 'Mở file không thành công';
-}
-else{
- // Lặp qua từng dòng để đọc
-    while(!feof($fp))
-    {
-        echo fgets($fp);
-    }
-}*/
-?>   
-<!--========================================================-->
-
-	 <div class="row">
-     <div class="row">
-     <b>>> Thiết bị vào</b>
-     </div>
-     <?php
-
-        PrintObjectVao($conn);
-
-    ?>
-     </div>
-
-
 	 <div class="row">
      
      <div class="row">
-     <b>>> Thiết bị ra</b>
+     <b>>> Danh sách các trạm</b>
      </div>
-        <div class="land-1">
+        <div class="land-1"> 
+        <?php
 
-
-<?php
-
-	PrintObjectDatabase($conn);
-
-?>
-
-<div class='col-lg-12 col-md-12 col-sm-12 col-xs-12'>
-<hr/>
-<div class='col-lg-12 col-md-12 col-sm-12 col-xs-12' style='padding:10px;text-align:right; margin: 5px; background-color: #c9d9e0;'><!--button id="export" data-export="export">Export (Top 20)</button--> (<a href='export.php' target='_blank'>Export - All</a>)</div>
-<hr/>
-<table class='tbllistitem' id="export_table"> 
-    <tr>
-        <th>
-            Id
-        </th>
-        <!--th class='hidden'>
-            Device Id
-        </th -->
-        <th>
-            Name
-        </th>
-        <th>
-            Status
-        </th>
-        <th>
-            Start Date
-        </th>
-        <th>
-            Finish Date
-        </th>
-    </tr>
-<?php
-
-PrintList($conn, 20);
-
-?>
-
-</table>
-</div>
-
-
-<!--
-//<?php
-//	PrintObjectSend();
-
-//?>
--->
-
-
-
+        foreach ($dataHost as $key => $value) {
+            //if($key == 0){
+            //    echo "<option value='" . $value["id"] . "' selected>" . $value["name"] . "</option>";
+            //} else{
+                echo "<a href='" . $value["url"] . "?code=" . $value["code"] . "&hostid=" . $value["id"] . "' target='_blank' class=''><div class='col-lg-3 col-md-4 col-sm-6 col-xs-6 user-tram'>";
+                echo "<div>" . $value[name] . "</div>";
+                echo "</div></a>";
+            //}
+        }
+        ?>
           <div class="clearfix"></div>  
         </div>
       </div>
     </div>
-	  <div class="log-box alert alert-danger" role="alert">
-			<strong>Woop !</strong>
-			<p class="log-text">test demo alert log</p>
-		</div>
   </body>
 </html>
 

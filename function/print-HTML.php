@@ -305,9 +305,9 @@ function PrintList($conn, $count) {
 
 	if($count == 0){
 		// Get all
-		$sql = "SELECT h.id, h.startdate, h.enddate, h.value, h.value as state, d.name, d.id as deviceid, d.objid FROM history h left join device d on h.deviceid = d.id ORDER BY h.id DESC, h.startdate DESC";
+		$sql = "SELECT h.id, h.startdate, h.enddate, h.value, h.value as state, d.name, d.id as deviceid, d.objid, h.hostid as hostid FROM history h join device d on h.deviceid = d.id where h.hostid=" . $_SESSION['hostid'] . " ORDER BY h.id DESC, h.startdate DESC";
 	}else{
-		$sql = "SELECT h.id, h.startdate, h.enddate, h.value, h.value as state, d.name, d.id as deviceid, d.objid FROM history h left join device d on h.deviceid = d.id ORDER BY h.id DESC, h.startdate DESC LIMIT " . $count;
+		$sql = "SELECT h.id, h.startdate, h.enddate, h.value, h.value as state, d.name, d.id as deviceid, d.objid, h.hostid as hostid FROM history h join device d on h.deviceid = d.id where h.hostid=" . $_SESSION['hostid'] . " ORDER BY h.id DESC, h.startdate DESC LIMIT " . $count;
 	}
 
 	$result = $conn->query($sql);
@@ -315,7 +315,7 @@ function PrintList($conn, $count) {
 	if ($result->num_rows > 0) {
 	    // output data of each row
 	    while($row = $result->fetch_assoc()) {
-	        PrintLine($row["id"], $row["type"], $row["name"], $row["state"], $row["flavor"], $row["amplitude"], $row["icon"], $row["deviceid"], $row["objid"], $row["value"], $row["startdate"], $row["enddate"]);
+	        PrintLine($row["id"], $row["type"], $row["name"], $row["state"], $row["flavor"], $row["amplitude"], $row["icon"], $row["deviceid"], $row["objid"], $row["value"], $row["startdate"], $row["enddate"], $row["hostid"]);
 	    }
 	} else {
 	    echo "0 row";
@@ -323,7 +323,7 @@ function PrintList($conn, $count) {
 }
 
 // Print object
-function PrintLine($Id, $objType, $objName, $state, $objFalvor, $amplitude, $icon, $deviceid, $objId, $value, $startdate, $enddate) {
+function PrintLine($Id, $objType, $objName, $state, $objFalvor, $amplitude, $icon, $deviceid, $objId, $value, $startdate, $enddate, $hostid) {
 	$statuName = 'OFF';
 	if($state == "1"){
 		$statuName = 'ON';
@@ -334,7 +334,10 @@ function PrintLine($Id, $objType, $objName, $state, $objFalvor, $amplitude, $ico
 	echo "<tr>
 		<td>
 			$Id
-		</td>		
+		</td>
+		<td>
+			$hostid
+		</td>			
 		<td>
 			$objName
 		</td>
