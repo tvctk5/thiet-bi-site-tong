@@ -315,7 +315,7 @@ function PrintList($conn, $count) {
 	if ($result->num_rows > 0) {
 	    // output data of each row
 	    while($row = $result->fetch_assoc()) {
-	        PrintLine($row["id"], $row["type"], $row["name"], $row["state"], $row["flavor"], $row["amplitude"], $row["icon"], $row["deviceid"], $row["objid"], $row["value"], $row["startdate"], $row["enddate"], $row["hostid"]);
+	        PrintLine($row["id"], $row["name"], $row["state"], $row["startdate"], $row["enddate"], $row["hostid"]);
 	    }
 	} else {
 	    echo "0 row";
@@ -323,7 +323,7 @@ function PrintList($conn, $count) {
 }
 
 // Print object
-function PrintLine($Id, $objType, $objName, $state, $objFalvor, $amplitude, $icon, $deviceid, $objId, $value, $startdate, $enddate, $hostid) {
+function PrintLine($Id, $objName, $state, $startdate, $enddate, $hostid) {
 	$statuName = 'OFF';
 	if($state == "1"){
 		$statuName = 'ON';

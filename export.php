@@ -42,7 +42,10 @@ while( $row = mysqli_fetch_assoc($qhost) ) {
 
 $start_date = (isset($_GET['start_date']) && $_GET['start_date'] != '') ? $_GET['start_date'] : '';
 $end_date = (isset($_GET['end_date']) && $_GET['end_date'] != '') ? $_GET['end_date'] : '';
-$hostid = $_GET['hostid'];
+$hostid = '';
+if (isset($_GET['hostid'])) {
+    $hostid = $_GET['hostid'];
+}
 
 $start_date_search = $start_date;
 $end_date_search = $end_date;
@@ -215,7 +218,7 @@ echo '<input type="text" id="end_date_search" name="end_date_search" placeholder
 <?php
 // BƯỚC 6: HIỂN THỊ DANH SÁCH TIN TỨC
 while ($row = mysqli_fetch_assoc($result)){
-    PrintLine($row["id"], $row["type"], $row["name"], $row["state"], $row["flavor"], $row["amplitude"], $row["icon"], $row["deviceid"], $row["objid"], $row["value"], $row["startdate"], $row["enddate"], $row["hostid"]);
+    PrintLine($row["id"], $row["name"], $row["state"], $row["startdate"], $row["enddate"], $row["hostid"]);
 }
 ?>
 <tr>

@@ -98,7 +98,7 @@ $db = new dbObj();
             //    echo "<option value='" . $value["id"] . "' selected>" . $value["name"] . "</option>";
             //} else{
                 echo "<a href='" . $value["url"] . "?code=" . $value["code"] . "&hostid=" . $value["id"] . "' target='_blank' class=''><div class='col-lg-3 col-md-4 col-sm-6 col-xs-6 user-tram'>";
-                echo "<div>" . $value[name] . "</div>";
+                echo "<div>" . $value["name"] . "</div>";
                 echo "</div></a>";
             //}
         }
