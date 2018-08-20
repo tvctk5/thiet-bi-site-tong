@@ -13,6 +13,7 @@ if (!isset($_SESSION['username'])) {
 
 //include connection file 
 include_once("connection.php");
+include_once("sql/sql-function.php");
 $db = new dbObj();
     $connString =  $db->getConnstring();
     // where uh.userId in (select Id from user where username = '" . $_SESSION['username'] . "') 
@@ -111,5 +112,5 @@ $db = new dbObj();
 </html>
 
 <?php 
-	CloseDatabase($conn);
+	CloseDatabase($connString);
 ?>

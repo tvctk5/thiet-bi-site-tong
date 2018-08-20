@@ -96,6 +96,7 @@ $db = new dbObj();
 					<th data-column-id="username">Tài khoản</th>
                     <th data-column-id="view">Quyền xem</th>
                     <th data-column-id="control">Quyền điều khiển</th>
+                    <th data-column-id="sendsms">Nhận tin nhắn</th>
 					<th data-column-id="commands" data-formatter="commands" data-sortable="false">Sự kiện</th>
 				</tr>
 			</thead>
@@ -177,6 +178,10 @@ $db = new dbObj();
                     <label for="edit_control" class="control-label">Quyền điều khiển:</label>
                     <input type="checkbox" class="" id="edit_control" name="edit_control"/>
                   </div>
+				  <div class="form-group">
+                    <label for="edit_sendsms" class="control-label">Nhận tin nhắn:</label>
+                    <input type="checkbox" class="" id="edit_sendsms" name="edit_sendsms"/>
+                  </div>
                 
             </div>
             <div class="modal-footer">
@@ -241,6 +246,7 @@ $( document ).ready(function() {
 
             var view = parseInt(ele.siblings(':nth-of-type(4)').html());
             var control = parseInt(ele.siblings(':nth-of-type(5)').html());
+            var sms = parseInt(ele.siblings(':nth-of-type(6)').html());
 
             if(view == 1){
                 $('#edit_view').prop('checked', true);;                   
@@ -252,6 +258,12 @@ $( document ).ready(function() {
                 $('#edit_control').prop('checked', true);;                   
             } else{
                 $('#edit_control').prop('checked', false);;     
+            }
+
+            if(sms == 1){
+                $('#edit_sendsms').prop('checked', true);;                   
+            } else{
+                $('#edit_sendsms').prop('checked', false);;     
             }
 
         } else {

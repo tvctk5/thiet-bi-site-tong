@@ -1,7 +1,7 @@
 <?php 
 
 define("serverName", "localhost");
-define("userName", "cantv");
+define("userName", "root");
 define("password", "123**abc");
 define("dbName", "trantu");
 define("TABLE", " device "); // need space between 'device'

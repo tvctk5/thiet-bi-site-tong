@@ -2,7 +2,7 @@
 Class dbObj{
 	/* Database connection start */
 	var $servername = "127.0.0.1";
-	var $username = "phpmyadmin";
+	var $username = "root";
 	var $password = "123**abc";
 	var $dbname = "trantu";
 	var $conn;

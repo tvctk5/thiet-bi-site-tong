@@ -63,8 +63,9 @@ $db = new dbObj();
                 echo '<input type="hidden" id="username"  name="username" value="' . $user["username"] . '" />';
                 ?>
                 </select>
-                Quyền xem: <input type="checkbox" id="view" name="view" checked/> 
-                Quyền điều khiển: <input type="checkbox" id="control" name="control"/> 
+                Quyền xem: <input type="checkbox" id="view" name="view" checked/> | 
+                Quyền điều khiển: <input type="checkbox" id="control" name="control"/> |  
+                Quyền nhận tin nhắn: <input type="checkbox" id="sendsms" name="sendsms"/> 
                 <button type="submit" class="btn btn-xs btn-primary" id="command-add" data-row-id="0">
                 <span class="glyphicon glyphicon-plus"></span> Thêm quyền</button></div></div>
             </form>
@@ -75,7 +76,8 @@ $db = new dbObj();
                     <th data-column-id="name">Trạm</th>
 					<th data-column-id="url">Đường dẫn</th>
                     <th data-column-id="view">Quyền xem</th>
-                    <th data-column-id="control">Quyền điều khiển</th>
+                    <th data-column-id="control">Quyền điều khiển</th>                    
+					<th data-column-id="sendsms">Nhận tin nhắn</th>
 					<th data-column-id="commands" data-formatter="commands" data-sortable="false">Sự kiện</th>
 				</tr>
 			</thead>
@@ -112,6 +114,10 @@ $db = new dbObj();
 				  <div class="form-group">
                     <label for="status" class="control-label">Trạng thái:</label>
                     <input type="checkbox" class="" id="status" name="status"/>
+                  </div>
+				  <div class="form-group">
+                    <label for="sendsms" class="control-label">Nhận tin nhắn:</label>
+                    <input type="checkbox" class="" id="sendsms" name="sendsms"/>
                   </div>
                     <input type="hidden" name="code" id="code">
 
@@ -156,6 +162,10 @@ $db = new dbObj();
 				  <div class="form-group">
                     <label for="edit_control" class="control-label">Quyền điều khiển:</label>
                     <input type="checkbox" class="" id="edit_control" name="edit_control"/>
+                  </div>
+				  <div class="form-group">
+                    <label for="edit_sendsms" class="control-label">Nhận tin nhắn:</label>
+                    <input type="checkbox" class="" id="edit_sendsms" name="edit_sendsms"/>
                   </div>
                 
             </div>
@@ -217,17 +227,23 @@ $( document ).ready(function() {
 
             var view = parseInt(ele.siblings(':nth-of-type(4)').html());
             var control = parseInt(ele.siblings(':nth-of-type(5)').html());
+            var sendsms = parseInt(ele.siblings(':nth-of-type(6)').html());
 
             if(view == 1){
-                $('#edit_view').prop('checked', true);;                   
+                $('#edit_view').prop('checked', true);
             } else{
-                $('#edit_view').prop('checked', false);;     
+                $('#edit_view').prop('checked', false);
             }
 
             if(control == 1){
-                $('#edit_control').prop('checked', true);;                   
+                $('#edit_control').prop('checked', true);   
             } else{
-                $('#edit_control').prop('checked', false);;     
+                $('#edit_control').prop('checked', false);
+            }
+            if(sendsms == 1){
+                $('#edit_sendsms').prop('checked', true);
+            } else{
+                $('#edit_sendsms').prop('checked', false);
             }
 
         } else {
@@ -252,6 +268,7 @@ $( document ).ready(function() {
 function ajaxAction(action) {
     data = $("#frm_"+action).serializeArray();
     console.log(data);
+
     $.ajax({
         type: "POST",  
         url: "response_user_permission.php",  
@@ -270,8 +287,8 @@ function ajaxAction(action) {
     .done(function() {
         //alert( "success" );
     })
-    .fail(function() {
-        //alert( "error" );
+    .fail(function(ex) {
+        //alert( "error" + JSON.stringify(ex));
     })
     .always(function() {
         //alert( "complete" );
