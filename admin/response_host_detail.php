@@ -43,17 +43,22 @@
 		$data = array();
 		$view = 0;
 		$control = 0;
+		$sms = 0;
 
-		if($params["view"] == "on"){
+		if(isset($params["view"]) && $params["view"] == "on"){
 			$view = 1;
 		}
 
-		if($params["control"] == "on"){
+		if(isset($params["control"]) && $params["control"] == "on"){
 			$control = 1;
 		}
 
+		if(isset($params["sendsms"]) && $params["sendsms"] == "on"){
+			$sms = 1;
+		}
+
 		//print_R($_POST);die;
-		$sql = "INSERT INTO `user_host` (userId,hostId,view, control) VALUES(" . $params["userId"]. ", " . $params["hostId"] . ", " . $view . "," . $control . ");  ";
+		$sql = "INSERT INTO `user_host` (userId,hostId,view, control, sendsms) VALUES(" . $params["userId"]. ", " . $params["hostId"] . ", " . $view . "," . $control . ", ". $sms .");  ";
 		
 		echo $result = mysqli_query($this->conn, $sql) or die("error to insert host data");
 	}
@@ -77,7 +82,7 @@
 			$where .=" ORDER By ".key($params['sort']) .' '.current($params['sort'])." ";
 		}
 	   // getting total number records without any search
-		$sql = "SELECT u.name,u.username,uh.view,uh.control,uh.userId,uh.hostId FROM user u join user_host uh on u.Id = uh.userId and uh.hostId=". $params["hostId"];
+		$sql = "SELECT u.name,u.username,uh.view,uh.control,uh.userId,uh.hostId, uh.sendsms FROM user u join user_host uh on u.Id = uh.userId and uh.hostId=". $params["hostId"];
 		$sqlTot .= $sql;
 		$sqlRec .= $sql;
 		
@@ -111,17 +116,22 @@
 		$data = array();
 		$view = 0;
 		$control = 0;
+		$sms = 0;
 
-		if($params["edit_view"] == "on"){
+		if(isset($params["edit_view"]) && $params["edit_view"] == "on"){
 			$view = 1;
 		}
 
-		if($params["edit_control"] == "on"){
+		if(isset($params["edit_control"]) && $params["edit_control"] == "on"){
 			$control = 1;
+		}
+		
+		if(isset($params["edit_sendsms"]) && $params["edit_sendsms"] == "on"){
+			$sms = 1;
 		}
 
 		//print_R($_POST);die;
-		$sql = "Update `user_host` set view = " . $view . ", control=" . $control ." WHERE userId=" . $_POST["edit_userid"] . " AND hostId=".$_POST["edit_hostid"];
+		$sql = "Update `user_host` set view = " . $view . ", control=" . $control ." , sendsms = " . $sms . " WHERE userId=" . $_POST["edit_userid"] . " AND hostId=".$_POST["edit_hostid"];
 		
 		echo $result = mysqli_query($this->conn, $sql) or die("error to update host data");
 	}
