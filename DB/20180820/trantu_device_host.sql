@@ -1,0 +1,56 @@
+-- MySQL dump 10.13  Distrib 8.0.12, for Win64 (x86_64)
+--
+-- Host: localhost    Database: trantu
+-- ------------------------------------------------------
+-- Server version	8.0.12
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+ SET NAMES utf8 ;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `device_host`
+--
+
+DROP TABLE IF EXISTS `device_host`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+ SET character_set_client = utf8mb4 ;
+CREATE TABLE `device_host` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `hostId` int(11) NOT NULL,
+  `deviceId` int(11) NOT NULL,
+  `state` tinyint(4) DEFAULT '0',
+  `amplitude` int(11) DEFAULT NULL,
+  `value` varchar(500) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT '0',
+  `updatedate` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=97 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `device_host`
+--
+
+LOCK TABLES `device_host` WRITE;
+/*!40000 ALTER TABLE `device_host` DISABLE KEYS */;
+INSERT INTO `device_host` VALUES (81,11,1,0,0,'1','2018-07-16 09:40:32'),(82,11,2,0,0,'1','2018-07-16 09:40:32'),(83,11,3,0,0,'1','2018-07-16 09:40:32'),(84,11,4,0,0,'1','2018-07-16 09:40:32'),(85,11,5,0,0,'1','2018-07-16 09:40:32'),(86,11,6,0,0,'1','2018-07-16 09:40:32'),(87,11,7,0,0,'1','2018-07-16 09:40:32'),(88,11,8,0,0,'1','2018-07-16 09:40:32'),(89,11,9,1,0,'','2018-07-16 09:40:32'),(90,11,10,0,7,'','2018-07-16 09:40:32'),(91,11,11,1,0,'1','2018-07-16 09:40:32'),(92,11,12,0,0,'1','2018-07-16 09:40:32'),(93,11,13,1,0,'','2018-07-16 09:40:32'),(94,11,14,1,0,'','2018-07-16 09:40:32'),(95,11,15,1,0,'','2018-07-16 09:40:32'),(96,11,16,1,0,'','2018-07-16 09:40:32');
+/*!40000 ALTER TABLE `device_host` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2018-08-20  8:10:09
