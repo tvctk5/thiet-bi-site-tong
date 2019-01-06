@@ -7,7 +7,7 @@ include 'sql/sql-function.php';
 
 //tiến hành kiểm tra là người dùng đã đăng nhập hay chưa
 //nếu chưa, chuyển hướng người dùng ra lại trang đăng nhập
-if (!isset($_SESSION['username'])) {
+if (!isset($_SESSION['username']) || !isset($_SESSION['userid'])) {
 	 header('Location: login.php');
 }
 
@@ -30,7 +30,7 @@ if (isset($_POST["btn_submit"])) {
 $conn = ConnectDatabse();
 
 // Get host
-$sqlhost = "SELECT * FROM host order by name";
+$sqlhost = "SELECT distinct * FROM host h join user_host uh on uh.hostId=h.id and uh.userId=" . $_SESSION['userid'] . " order by name";
 $qhost = mysqli_query($conn, $sqlhost) or die("error to fetch tot hosts data");
 $dataHost[] = null;
 
@@ -59,25 +59,31 @@ if ($end_date != ''){
 }
 
 $date_condition = '';
+$join =" history hi ";
+
 if($hostid != ""){
     $date_condition .= ' AND hostid='. $hostid;
+} else {
+    $join .= " join host h on h.id=hi.hostId join user_host uh on uh.hostId=h.id and uh.userId=" . $_SESSION['userid'];
 }
 
 if($start_date != '' && $end_date != ''){
-    $date_condition .= " AND h.startdate between '" . $start_date . "' and '" . $end_date . "' ";
+    $date_condition .= " AND hi.startdate between '" . $start_date . "' and '" . $end_date . "' ";
 } else {
     if($start_date != ''){
-        $date_condition .= " AND h.startdate >= '" . $start_date . "'";
+        $date_condition .= " AND hi.startdate >= '" . $start_date . "'";
     }
     if($end_date != ''){
-        $date_condition .= " AND h.startdate <= '" . $end_date . "'";
+        $date_condition .= " AND hi.startdate <= '" . $end_date . "'";
     }
 }
 
 
 
 // BƯỚC 2: TÌM TỔNG SỐ RECORDS
-$result = mysqli_query($conn, 'select count(h.id) as total FROM history h WHERE 1=1 ' . $date_condition);
+$query_count = 'select count(distinct hi.id) as total FROM ' . $join . ' WHERE 1=1 ' . $date_condition;
+$result = mysqli_query($conn, $query_count);
+// echo $query_count;
 $row = mysqli_fetch_assoc($result);
 $total_records = $row['total'];
 
@@ -105,7 +111,10 @@ $start = ($current_page - 1) * $limit;
 
 // BƯỚC 5: TRUY VẤN LẤY DANH SÁCH TIN TỨC
 // Có limit và start rồi thì truy vấn CSDL lấy danh sách tin tức
-$result = mysqli_query($conn, "SELECT h.id, h.startdate, h.enddate, h.value, h.value as state, d.name, d.id as deviceid, d.objid, h.hostid as hostid FROM history h left join device d on h.deviceid = d.id  WHERE 1=1 " . $date_condition . " ORDER BY h.id DESC, h.startdate DESC LIMIT $start, $limit");
+$query_data = "SELECT distinct hi.id, hi.startdate, hi.enddate, hi.value, hi.value as state, d.name, d.id as deviceid, d.objid, hi.hostid as hostid, h.name as host_name, '' as note FROM " . $join . " left join device d on hi.deviceid = d.id  WHERE 1=1 " . $date_condition . " ORDER BY hi.id DESC, hi.startdate DESC LIMIT $start, $limit";
+$result = mysqli_query($conn, $query_data);
+// echo $query_data;
+
 //echo "SELECT h.id, h.startdate, h.enddate, h.value, h.value as state, d.name, d.id as deviceid, d.objid FROM history h left join device d on h.deviceid = d.id  WHERE 1=1 " . $date_condition . " ORDER BY h.id DESC, h.startdate DESC LIMIT $start, $limit";
 //return;
 ?>
@@ -117,9 +126,11 @@ $result = mysqli_query($conn, "SELECT h.id, h.startdate, h.enddate, h.value, h.v
     <meta http-equiv="refresh" content="10000">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>History export</title>
+    <title>Lịch sử</title>
     
     <!-- CSS -->
+    
+    <link rel="stylesheet" href="css/common.css" type="text/css" media="all">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
     <link rel="stylesheet" type="text/css" href="fonts/font-awesome/css/font-awesome.min.css">
     <!-- Bootst192rap -->
@@ -145,7 +156,7 @@ $result = mysqli_query($conn, "SELECT h.id, h.startdate, h.enddate, h.value, h.v
 
 <div class='col-lg-12 col-md-12 col-sm-12 col-xs-12'>
 <!--========================================================-->
-<h2>LỊCH SỬ</h2>
+<h3><a href='index.php'>Trang chủ</a> <span class='link-to-home'> >> </span> Lịch sử hoạt động thiết bị</h3>
 <!--========================================================-->  
 <hr/>
 <form method="POST" action="export.php">
@@ -203,22 +214,31 @@ echo '<input type="text" id="end_date_search" name="end_date_search" placeholder
             Trạm Id
         </th>
         <th>
-            Name
+            Trạm
         </th>
         <th>
-            Status
+            Cảnh báo
+        </th>
+        <th style='display:none;'>
+            Trạng thái
         </th>
         <th>
-            Start Date
+            T/g Bắt đầu
         </th>
         <th>
-            Finish Date
+            T/g Kết thúc
+        </th>
+        <th>
+            Thời gian
+        </th>
+        <th>
+            Ghi chú
         </th>
     </tr>
 <?php
 // BƯỚC 6: HIỂN THỊ DANH SÁCH TIN TỨC
 while ($row = mysqli_fetch_assoc($result)){
-    PrintLine($row["id"], $row["name"], $row["state"], $row["startdate"], $row["enddate"], $row["hostid"]);
+    PrintLine($row["id"], $row["name"], $row["state"], $row["startdate"], $row["enddate"], $row["hostid"], $row["host_name"], $row["note"]);
 }
 ?>
 <tr>
@@ -236,6 +256,7 @@ while ($row = mysqli_fetch_assoc($result)){
             // Lặp khoảng giữa
             $overload = false;
             $flag = false;
+            $flag_space = false;
 
             for ($i = 1; $i <= $total_page; $i++){
                 if($total_page > 15){
@@ -243,7 +264,11 @@ while ($row = mysqli_fetch_assoc($result)){
                 }
                 
                 if($overload && $i != 1 && $i != 2 && $current_page != $i && $i != ($total_page -1) && $i != $total_page){
-                    echo '...';
+                    if($flag_space == false){
+                        echo '...';
+                        $flag_space = true;
+                    }
+
                     continue;
                 }
 

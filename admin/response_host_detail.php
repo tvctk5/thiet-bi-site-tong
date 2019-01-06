@@ -82,7 +82,7 @@
 			$where .=" ORDER By ".key($params['sort']) .' '.current($params['sort'])." ";
 		}
 	   // getting total number records without any search
-		$sql = "SELECT u.name,u.username,uh.view,uh.control,uh.userId,uh.hostId, uh.sendsms FROM user u join user_host uh on u.Id = uh.userId and uh.hostId=". $params["hostId"];
+		$sql = "SELECT u.name,u.username,uh.view,uh.control,uh.userId,uh.hostId, uh.sendsms, u.isAdmin FROM user u join user_host uh on u.Id = uh.userId and uh.hostId=". $params["hostId"];
 		$sqlTot .= $sql;
 		$sqlRec .= $sql;
 		

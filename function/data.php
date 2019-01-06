@@ -65,10 +65,10 @@
 		}
 		else if($_REQUEST["type"]=="mute") {
 			$value = $_REQUEST["value"];
-			$objtype = $_REQUEST["objtype"];
-			$objid = $_REQUEST["objid"];
+			$hostid = $_REQUEST["hostid"];
+			$userid = $_REQUEST["userid"];
 
-			UpdateMuteByObjId($conn, $objid, $objtype, $value);
+			UpdateMuteByHostIdAndUserId($conn, $hostid, $userid, $value);
 		}
 		else if($_REQUEST["type"]=="range_demayno") {
 			$value = $_REQUEST["value"];

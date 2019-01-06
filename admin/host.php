@@ -3,6 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Quản lý các trạm</title>
+<link rel="stylesheet" href="../css/common.css" type="text/css" media="all">
 <link rel="stylesheet" href="../dist/bootstrap.min.css" type="text/css" media="all">
 <link href="../dist/jquery.bootgrid.css" rel="stylesheet" />
 <script src="../dist/jquery-1.11.1.min.js"></script>
@@ -12,7 +13,7 @@
 <body>
 	<div class="container">
       <div class="">
-        <h2>Danh sách trạm</h2>
+        <h3><a href='../index.php'>Trang chủ</a> <span class='link-to-home'> >> </span> Danh sách trạm</h3>
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 		<div class="well clearfix">
 			<div class="pull-right"><button type="button" class="btn btn-xs btn-primary" id="command-add" data-row-id="0">
@@ -24,6 +25,9 @@
 					<th data-column-id="name">Tên</th>
 					<th data-column-id="phone">Số điện thoại</th>
 					<th data-column-id="url">Đường dẫn</th>
+					<th data-column-id="status">Trạng thái</th>
+					<th data-column-id="allow_send_sms">Kích hoạt SMS</th>
+					<th data-column-id="connection_status" title='Tình trạng kết nối'>Tình trạng kết nối</th>
 					<th data-column-id="commands" data-formatter="commands" data-sortable="false">Sự kiện</th>
 				</tr>
 			</thead>
@@ -49,10 +53,18 @@
                   <div class="form-group">
                     <label for="phone" class="control-label">Số điện thoại:</label>
                     <input type="text" class="form-control" id="phone" name="phone"/>
-                  </div>
+                  </div>                  
 				  <div class="form-group">
                     <label for="url" class="control-label">Đường dẫn:</label>
                     <input type="text" class="form-control" id="url" name="url"/>
+                  </div>
+				  <div class="form-group">
+                    <label for="status" class="control-label">Trạng thái:</label>
+                    <input type="checkbox" class="" id="status" name="status"/>
+                  </div>
+				  <div class="form-group">
+                    <label for="allow_send_sms" class="control-label">Kích hoạt SMS:</label>
+                    <input type="checkbox" class="" id="allow_send_sms" name="allow_send_sms"/>
                   </div>
                 
             </div>
@@ -73,27 +85,35 @@
             </div>
             <div class="modal-body">
                 <form method="post" id="frm_edit">
-				<input type="hidden" value="edit" name="action" id="action">
-				<input type="hidden" value="0" name="edit_id" id="edit_id">
-                  <div class="form-group">
-                    <label for="edit_name" class="control-label">Tên:</label>
-                    <input type="text" class="form-control" id="edit_name" name="edit_name"/>
-                  </div>
-                  <div class="form-group">
-                    <label for="edit_phone" class="control-label">Số điện thoại:</label>
-                    <input type="text" class="form-control" id="edit_phone" name="edit_phone"/>
-                  </div>
+                    <input type="hidden" value="edit" name="action" id="action">
+                    <input type="hidden" value="0" name="edit_id" id="edit_id">
+                    <div class="form-group">
+                        <label for="edit_name" class="control-label">Tên:</label>
+                        <input type="text" class="form-control" id="edit_name" name="edit_name"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_phone" class="control-label">Số điện thoại:</label>
+                        <input type="text" class="form-control" id="edit_phone" name="edit_phone"/>
+                    </div>                  
+                    <div class="form-group">
+                        <label for="edit_url" class="control-label">Đường dẫn:</label>
+                        <input type="text" class="form-control" id="edit_url" name="edit_url"/>
+                    </div>
+                    <!-- <input type="text" nam="abc" id="abc"/> -->
+                    <div class="form-group">
+                        <label for="edit_status" class="control-label">Trạng thái:</label>
+                        <input type="checkbox" class="" id="edit_status" name="edit_status"/>
+                    </div>
 				  <div class="form-group">
-                    <label for="edit_url" class="control-label">Đường dẫn:</label>
-                    <input type="text" class="form-control" id="edit_url" name="edit_url"/>
+                    <label for="edit_allow_send_sms" class="control-label">Kích hoạt SMS:</label>
+                    <input type="checkbox" class="" id="edit_allow_send_sms" name="edit_allow_send_sms"/>
                   </div>
-                
+			    </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
                 <button type="button" id="btn_edit" class="btn btn-primary">Lưu</button>
             </div>
-			</form>
         </div>
     </div>
 </div>
@@ -142,6 +162,20 @@ console.log(g_id);
                                 $('#edit_name').val(ele.siblings(':nth-of-type(2)').html());
                                 $('#edit_phone').val(ele.siblings(':nth-of-type(3)').html());
                                 $('#edit_url').val(ele.siblings(':nth-of-type(4)').html());
+                                var status = parseInt(ele.siblings(':nth-of-type(5)').html());
+                                var allow_send_sms = parseInt(ele.siblings(':nth-of-type(6)').html());
+
+                                if(status == 1){
+                                    $('#edit_status').prop('checked', true);;                   
+                                } else{
+                                    $('#edit_status').prop('checked', false);;     
+                                }
+
+                                if(allow_send_sms == 1){
+                                    $('#edit_allow_send_sms').prop('checked', true);;                   
+                                } else{
+                                    $('#edit_allow_send_sms').prop('checked', false);;     
+                                }
 					} else {
 					 alert('Now row selected! First select row, then click edit button');
 					}
@@ -164,6 +198,7 @@ console.log(g_id);
 
 function ajaxAction(action) {
 				data = $("#frm_"+action).serializeArray();
+                // console.log(data);
 				$.ajax({
 				  type: "POST",  
 				  url: "response_host.php",  

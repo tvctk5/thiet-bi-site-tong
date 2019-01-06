@@ -42,7 +42,19 @@
 	function insertHost($params) {
 		$conn = $this->conn;
 		$data = array();
-		$sql = "INSERT INTO `host` (name, phone, url) VALUES('" . $params["name"] . "', '" . $params["phone"] . "','" . $params["url"] . "');  ";
+		$status = 0;
+		$allow_send_sms = 0;
+		$allow_sound = 1;
+
+		if(isset($params["status"]) && $params["status"] == "on"){
+			$status = 1;
+		}
+
+		if(isset($params["allow_send_sms"]) && $params["allow_send_sms"] == "on"){
+			$allow_send_sms = 1;
+		}
+
+		$sql = "INSERT INTO `host` (name, phone, url, status, allow_send_sms) VALUES('" . $params["name"] . "', '" . $params["phone"] . "','" . $params["url"] . "'," . $status .", ". $allow_send_sms .");  ";
 		
 		echo $result = mysqli_query($this->conn, $sql) or die("error to insert host data");
 		// insert device
@@ -65,6 +77,31 @@
 			}
 
 			$sql = "INSERT INTO `device_host` (hostId, deviceId, state,amplitude,value) VALUES " . $values . ";  ";
+			echo $result = mysqli_query($this->conn, $sql) or die("error to insert host data");
+		}
+
+		// Admin user: Auto insert user-host full quyền
+		$sql = "SELECT *  FROM user WHERE isAdmin=1";
+		$result = $conn->query($sql);
+
+		if ($result->num_rows > 0) {
+			// build query
+			$values = "";
+			$view = 1;
+			$control = 1;
+			$sendsms = 1;
+			$allow_sound = 1;
+
+			while($row = $result->fetch_assoc()) {
+				if($values != ""){
+					$values .= ",";
+				}
+
+				// Insert device - host
+				$values .= "(". $row["Id"] .",". $hostid .",". $view ."," . $control. ",". $sendsms .",". $allow_sound .")";
+			}
+
+			$sql = "INSERT INTO `user_host` (userId, hostId, view, control, sendsms, allow_sound) VALUES " . $values . ";  ";
 			echo $result = mysqli_query($this->conn, $sql) or die("error to insert host data");
 		}
 	}
@@ -122,9 +159,20 @@
 	function updateHost($params) {
 		$data = array();
 		//print_R($_POST);die;
-		$sql = "Update `host` set name = '" . $params["edit_name"] . "', phone='" . $params["edit_phone"]."', url='" . $params["edit_url"] . "' WHERE id='".$_POST["edit_id"]."'";
 		
-		echo $result = mysqli_query($this->conn, $sql) or die("error to update host data");
+		$status = 0;
+		$allow_send_sms =0;
+
+		if(isset($params["edit_status"]) && $params["edit_status"] == "on"){
+			$status = 1;
+		}
+
+		if(isset($params["edit_allow_send_sms"]) && $params["edit_allow_send_sms"] == "on"){
+			$allow_send_sms = 1;
+		}
+
+		$sql = "Update `host` set name = '" . $params["edit_name"] . "', phone='" . $params["edit_phone"]."', url='" . $params["edit_url"] . "', status = $status, allow_send_sms=$allow_send_sms WHERE id='". $_POST["edit_id"] ."'";
+		echo $result = mysqli_query($this->conn, $sql) or die($sql);
 	}
 	
 	function deleteHost($params) {

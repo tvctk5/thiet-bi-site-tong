@@ -3,8 +3,8 @@ Class dbObj{
 	/* Database connection start */
 	var $servername = "127.0.0.1";
 	var $username = "root";
-	var $password = "123**abc";
-	var $dbname = "trantu";
+	var $password = "";
+	var $dbname = "dieukhien";
 	var $conn;
 	function getConnstring() {
 		$con = mysqli_connect($this->servername, $this->username, $this->password, $this->dbname) or die("Connection failed: " . mysqli_connect_error());
@@ -16,6 +16,8 @@ Class dbObj{
 		} else {
 			$this->conn = $con;
 		}
+
+		mysqli_set_charset($con, 'UTF8');
 		return $this->conn;
 	}
 }

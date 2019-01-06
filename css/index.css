@@ -542,3 +542,17 @@ body{
     padding-top: 8px;
   }
 }
+
+.connection_status_lost, .sound_on{
+  background-color: red important;
+}
+.device-warning{
+  background-color: red !important;
+  color:yellow !important;
+}
+.app-sound{
+  text-align: center !important;
+}
+#tbl-host th {
+  font-size: 90% !important;
+}

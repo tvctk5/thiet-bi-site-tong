@@ -44,6 +44,7 @@ $db = new dbObj();
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Quản lý tài khoản</title>
+<link rel="stylesheet" href="../css/common.css" type="text/css" media="all">
 <link rel="stylesheet" href="../dist/bootstrap.min.css" type="text/css" media="all">
 <link href="../dist/jquery.bootgrid.css" rel="stylesheet" />
 <script src="../dist/jquery-1.11.1.min.js"></script>
@@ -53,7 +54,7 @@ $db = new dbObj();
 <body>
 	<div class="container">
       <div class="">
-        <h2>Danh sách tài khoản trên trạm</h2>
+        <h3><a href='../index.php'>Trang chủ</a> <span class='link-to-home'> >> </span> Danh sách tài khoản trên trạm</h3>
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         Trạm: <?php echo "#". $host["id"];
         echo " - ";
@@ -217,8 +218,12 @@ $( document ).ready(function() {
 		formatters: {
             "commands": function(column, row)
             {
-                return "<button title='Sửa thông tin' type=\"button\" class=\"btn btn-xs btn-default command-edit\" data-row-userId=\"" + row.userId + "\"><span class=\"glyphicon glyphicon-edit\"></span></button> " + 
-                    "<button title='Xóa' type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-userId=\"" + row.userId + "\" data-row-hostId=\"" + row.hostId + "\"><span class=\"glyphicon glyphicon-trash\"></span></button>";
+                if(row.isAdmin == 0) {
+                    return "<button title='Sửa thông tin' type=\"button\" class=\"btn btn-xs btn-default command-edit\" data-row-userId=\"" + row.userId + "\"><span class=\"glyphicon glyphicon-edit\"></span></button> " + 
+                        "<button title='Xóa' type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-userId=\"" + row.userId + "\" data-row-hostId=\"" + row.hostId + "\"><span class=\"glyphicon glyphicon-trash\"></span></button>";
+                }
+
+                return "";
             }
         }
    }).on("loaded.rs.jquery.bootgrid", function()

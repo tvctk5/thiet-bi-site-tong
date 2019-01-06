@@ -47,7 +47,7 @@
 		$code = $params["code"];
 		$status = 0;
 
-		if($params["status"] == "on"){
+		if(isset($params["status"]) && $params["status"] == "on"){
 			$status = 1;
 		}
 		$sql = "INSERT INTO `user` (username,password,phone, status,name,code) VALUES('" . $params["username"]. "', '" . $params["password"] . "', '" . $params["phone"] . "'," . $status . ",'" . $params["name"]. "','" . $code . "');  ";
@@ -65,7 +65,7 @@
 		
 		$sql = $sqlRec = $sqlTot = $where = '';
 		
-		if( !empty($params['searchPhrase']) ) {   
+		if( !empty($params['searchPhrase']) ) {
 			$where .=" WHERE ";
 			$where .=" ( name LIKE '".$params['searchPhrase']."%' ";
 			$where .=" OR phone LIKE '".$params['searchPhrase']."%' ";
@@ -109,7 +109,7 @@
 		$data = array();
 		$status = 0;
 
-		if($params["edit_status"] == "on"){
+		if(isset($params["edit_status"]) && $params["edit_status"] == "on"){
 			$status = 1;
 		}
 

@@ -6,6 +6,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Quản lý tài khoản</title>
+<link rel="stylesheet" href="../css/common.css" type="text/css" media="all">
 <link rel="stylesheet" href="../dist/bootstrap.min.css" type="text/css" media="all">
 <link href="../dist/jquery.bootgrid.css" rel="stylesheet" />
 <script src="../dist/jquery-1.11.1.min.js"></script>
@@ -15,7 +16,7 @@
 <body>
 	<div class="container">
       <div class="">
-        <h2>Danh sách tài khoản</h2>
+        <h3><a href='../index.php'>Trang chủ</a> <span class='link-to-home'> >> </span> Danh sách tài khoản</h3>
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 		<div class="well clearfix">
 			<div class="pull-right"><button type="button" class="btn btn-xs btn-primary" id="command-add" data-row-id="0">
@@ -142,7 +143,7 @@
                     <label for="editpass_password" class="control-label">Mật khẩu mới:</label>
                     <input type="password" class="form-control" id="editpass_password" name="editpass_password"/>
                   </div>
-                
+			    </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
@@ -171,10 +172,14 @@ $( document ).ready(function() {
 		formatters: {
             "commands": function(column, row)
             {
-                return "<button title='Sửa thông tin' type=\"button\" class=\"btn btn-xs btn-default command-edit\" data-row-id=\"" + row.Id + "\"><span class=\"glyphicon glyphicon-edit\"></span></button> " + 
-                    "<button title='Xóa' type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" + row.Id + "\"><span class=\"glyphicon glyphicon-trash\"></span></button>"+ 
-                    "<button title='Đổi mật khẩu' type=\"button\" class=\"btn btn-xs btn-default command-editpass\" data-row-id=\"" + row.Id + "\"><span class=\"glyphicon glyphicon-pencil\"></span></button>" +
-                    "<button title='Phân quyền' type=\"button\" class=\"btn btn-xs btn-default command-permission\" data-row-code=\"" + row.code + "\"><span class=\"glyphicon glyphicon-cog\"></span></button>";
+                if(row.isAdmin == 0) {
+                    return "<button title='Sửa thông tin' type=\"button\" class=\"btn btn-xs btn-default command-edit\" data-row-id=\"" + row.Id + "\"><span class=\"glyphicon glyphicon-edit\"></span></button> " + 
+                        "<button title='Xóa' type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" + row.Id + "\"><span class=\"glyphicon glyphicon-trash\"></span></button>"+ 
+                        "<button title='Đổi mật khẩu' type=\"button\" class=\"btn btn-xs btn-default command-editpass\" data-row-id=\"" + row.Id + "\"><span class=\"glyphicon glyphicon-pencil\"></span></button>" +
+                        "<button title='Phân quyền' type=\"button\" class=\"btn btn-xs btn-default command-permission\" data-row-code=\"" + row.code + "\"><span class=\"glyphicon glyphicon-cog\"></span></button>";
+                }
+
+                return "";
             }
         }
    }).on("loaded.rs.jquery.bootgrid", function()

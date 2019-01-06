@@ -49,6 +49,7 @@ session_start();
 				//tiến hành lưu tên đăng nhập vào session để tiện xử lý sau này
                 $_SESSION['username'] = $username;
                 $_SESSION['user'] = $user;
+                $_SESSION['userid'] = $user["Id"];
                 // Thực thi hành động sau khi lưu thông tin vào session
                 // ở đây mình tiến hành chuyển hướng trang web tới một trang gọi là index.php
                 header('Location: index.php');

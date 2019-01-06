@@ -2,8 +2,8 @@
 
 define("serverName", "localhost");
 define("userName", "root");
-define("password", "123**abc");
-define("dbName", "trantu");
+define("password", "");
+define("dbName", "dieukhien");
 define("TABLE", " device "); // need space between 'device'
 define("tenBang", " DieuKhien ");
 
@@ -13,7 +13,7 @@ function ConnectToSql() {
 	    die("Connection failed: " . mysqli_connect_error()) . PHP_EOL;
 	else;
 		// echo "Connection to mysql success !" . PHP_EOL;
-
+	mysqli_set_charset($conn, 'UTF8');
 	return $conn;
 }
 
@@ -29,6 +29,7 @@ function ConnectDatabse() {
 	    die("Connection failed: " . mysqli_connect_error());
 	else;
 		// echo "Connection database success !\n";
+	mysqli_set_charset($conn, 'UTF8');
 	return $conn;
 }
 
@@ -142,6 +143,17 @@ function UpdateValueByObjId($conn, $objId, $value) {
 function UpdateMuteByObjId($conn, $objId, $objtype,$value) {
 
 	$sql = "UPDATE " . TABLE . " SET value= $value WHERE objid='$objId' AND type='$objtype'";
+	echo $sql . PHP_EOL;
+	if ($conn->query($sql) === TRUE)
+	    echo "Record updated successfully" . PHP_EOL ;
+	else
+	    echo "Error updating record: " . $conn->error . PHP_EOL;
+}
+
+// Update value mute
+function UpdateMuteByHostIdAndUserId($conn, $hostid, $userid,$allow_sound) {
+
+	$sql = "UPDATE user_host SET allow_sound= $allow_sound WHERE hostid=$hostid AND userid=$userid";
 	echo $sql . PHP_EOL;
 	if ($conn->query($sql) === TRUE)
 	    echo "Record updated successfully" . PHP_EOL ;
