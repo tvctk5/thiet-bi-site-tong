@@ -63,6 +63,7 @@ $join =" history hi ";
 
 if($hostid != ""){
     $date_condition .= ' AND hostid='. $hostid;
+    $join .= " join host h on h.id=hi.hostId ";
 } else {
     $join .= " join host h on h.id=hi.hostId join user_host uh on uh.hostId=h.id and uh.userId=" . $_SESSION['userid'];
 }
