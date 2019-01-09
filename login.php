@@ -50,6 +50,7 @@ session_start();
                 $_SESSION['username'] = $username;
                 $_SESSION['user'] = $user;
                 $_SESSION['userid'] = $user["Id"];
+                $_SESSION['isAdmin'] = $user["isAdmin"];
                 // Thực thi hành động sau khi lưu thông tin vào session
                 // ở đây mình tiến hành chuyển hướng trang web tới một trang gọi là index.php
                 header('Location: index.php');

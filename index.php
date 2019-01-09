@@ -25,7 +25,7 @@ $db = new dbObj();
         $dataHost[] = $row;
     }
     // echo count($dataHost);
-    if(is_null($dataHost) || count($dataHost)<=0){
+    if($_SESSION['isAdmin'] == 0 && (is_null($dataHost) || count($dataHost)<=0)){
       //  || empty($dataHost) 
       echo "<h3>Tài khoản chưa được phân quyền trên trạm nào! Liên hệ quản trị viên</h3> <a href='logout.php'>Đăng xuất</a> || <a href='login.php'>Đăng nhập tài khoản khác</a>";
       return;
