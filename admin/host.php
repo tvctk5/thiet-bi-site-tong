@@ -117,6 +117,28 @@
         </div>
     </div>
 </div>
+
+<div id="edit_device_model" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Ẩn/ hiện thiết bị trên trạm</h4>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="frm_edit_device">
+                    <input type="hidden" value="edit_device" name="action" id="action">
+                    <div id="device_list">
+                    </div>
+			    </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+                <button type="button" id="btn_edit_device" name="btn_edit_device" class="btn btn-primary">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
 <script type="text/javascript">
@@ -137,6 +159,7 @@ $( document ).ready(function() {
 		        "commands": function(column, row)
 		        {
 		            return "<button title='Sửa thông tin' type=\"button\" class=\"btn btn-xs btn-default command-edit\" data-row-id=\"" + row.id + "\"><span class=\"glyphicon glyphicon-edit\"></span></button> " + 
+                        "<button title='Ẩn hiện thiết bị' type=\"button\" class=\"btn btn-xs btn-default command-edit-device\" data-row-id=\"" + row.id + "\"><span class=\"glyphicon glyphicon-th-large\"></span></button> " + 
 		                "<button title='Xóa thông tin' type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" + row.id + "\"><span class=\"glyphicon glyphicon-trash\"></span></button>" + 
 		                "<a title='Xem danh sách tài khoản' href='host_detail.php?hostid="+ row.id +"' class=\"btn btn-xs btn-default command-detail\" data-row-id=\"" + row.id + "\"><span class=\"glyphicon glyphicon-zoom-in\"></span></a>";
 		        }
@@ -150,32 +173,31 @@ $( document ).ready(function() {
 			var ele =$(this).parent();
 			var g_id = $(this).parent().siblings(':first').html();
             var g_name = $(this).parent().siblings(':nth-of-type(2)').html();
-console.log(g_id);
-                    console.log(g_name);
+            console.log(g_id);
+            console.log(g_name);
 
 		//console.log(grid.data());//
 		$('#edit_model').modal('show');
 					if($(this).data("row-id") >0) {
-							
-                                // collect the data
-                                $('#edit_id').val(ele.siblings(':first').html()); // in case we're changing the key
-                                $('#edit_name').val(ele.siblings(':nth-of-type(2)').html());
-                                $('#edit_phone').val(ele.siblings(':nth-of-type(3)').html());
-                                $('#edit_url').val(ele.siblings(':nth-of-type(4)').html());
-                                var status = parseInt(ele.siblings(':nth-of-type(5)').html());
-                                var allow_send_sms = parseInt(ele.siblings(':nth-of-type(6)').html());
+                        // collect the data
+                        $('#edit_id').val(ele.siblings(':first').html()); // in case we're changing the key
+                        $('#edit_name').val(ele.siblings(':nth-of-type(2)').html());
+                        $('#edit_phone').val(ele.siblings(':nth-of-type(3)').html());
+                        $('#edit_url').val(ele.siblings(':nth-of-type(4)').html());
+                        var status = parseInt(ele.siblings(':nth-of-type(5)').html());
+                        var allow_send_sms = parseInt(ele.siblings(':nth-of-type(6)').html());
 
-                                if(status == 1){
-                                    $('#edit_status').prop('checked', true);;                   
-                                } else{
-                                    $('#edit_status').prop('checked', false);;     
-                                }
+                        if(status == 1){
+                            $('#edit_status').prop('checked', true);;                   
+                        } else{
+                            $('#edit_status').prop('checked', false);;     
+                        }
 
-                                if(allow_send_sms == 1){
-                                    $('#edit_allow_send_sms').prop('checked', true);;                   
-                                } else{
-                                    $('#edit_allow_send_sms').prop('checked', false);;     
-                                }
+                        if(allow_send_sms == 1){
+                            $('#edit_allow_send_sms').prop('checked', true);;                   
+                        } else{
+                            $('#edit_allow_send_sms').prop('checked', false);;     
+                        }
 					} else {
 					 alert('Now row selected! First select row, then click edit button');
 					}
@@ -193,33 +215,101 @@ console.log(g_id);
 								//$(this).parent('tr').remove();
 								//$("#host_grid").bootgrid('remove', $(this).data("row-id"))
                     }
+    }).end().find(".command-edit-device").on("click", function(e)
+    {
+        $('#edit_device_model').modal('show');
+        let id=$(this).data("row-id");
+        // $('#edit_id').val(id);
+	    //alert("id="+id);
+
+        // device_list
+        $.post('response_host.php', { id: id, action:'get-list-device-by-hostid'}
+            , function(data){
+                // when ajax returns (callback), 
+                // $("#host_grid").bootgrid('reload');
+                // alert(data);
+                data = JSON.parse(data);
+                let lstId = '';
+                let html ='<div class="form-group col-sm-12 host-device-title">Thiết bị vào</div>';
+                for(let i = 0; i < data.length; i++){
+                    let item = data[i];
+                    if(item.type != 'obj-vao'){
+                        continue;
+                    }
+
+                    // alert(item);
+                    let checked='';
+                    if(item.status == 1){
+                        checked='checked';
+                    }
+                    if(lstId != ''){
+                        lstId += ',';
+                    }
+                    // save list id to update
+                    lstId += item.device_hostid + '';
+
+                    html += '<div class="form-group col-sm-6"><input type="checkbox" class="" id="chk_' + item.device_hostid + '" name="chk_' + item.device_hostid + '" ' + checked + ' /> ' + item.name + '</div>'
+                }
+
+                html +='<div class="form-group col-sm-12 host-device-title">Thiết bị ra</div>';
+                for(let i = 0; i < data.length; i++){
+                    let item = data[i];
+                    if(item.type == 'obj-vao'){
+                        continue;
+                    }
+
+                    // alert(item);
+                    let checked='';
+                    if(item.status == 1){
+                        checked='checked';
+                    }
+
+                    if(lstId != ''){
+                        lstId += ',';
+                    }
+                    // save list id to update
+                    lstId += item.device_hostid + '';
+
+                    html += '<div class="form-group col-sm-6"><input type="checkbox" class="" id="chk_' + item.device_hostid + '" name="chk_' + item.device_hostid + '" ' + checked + ' /> ' + item.name + '</div>'
+                }
+                html += '<input type="hidden" name="lstId" id="lstId" value="' + lstId + '">';
+                $("#device_list").html(html);
+        });
     });
 });
 
 function ajaxAction(action) {
-				data = $("#frm_"+action).serializeArray();
-                // console.log(data);
-				$.ajax({
-				  type: "POST",  
-				  url: "response_host.php",  
-				  data: data,
-				  dataType: "json",       
-				  success: function(response)  
-				  {
-					$('#'+action+'_model').modal('hide');
-					$("#host_grid").bootgrid('reload');
-				  }   
-				});
-			}
-			
-			$( "#command-add" ).click(function() {
-			  $('#add_model').modal('show');
-			});
-			$( "#btn_add" ).click(function() {
-			  ajaxAction('add');
-			});
-			$( "#btn_edit" ).click(function() {
-			  ajaxAction('edit');
-			});
+        data = $("#frm_"+action).serializeArray();
+        console.log(data);
+        $.ajax({
+            type: "POST",
+            url: "response_host.php",  
+            data: data,
+            dataType: "json",       
+            success: function(response)  
+            {
+                // alert(action);
+                $('#'+action+'_model').modal('hide');
+                $("#host_grid").bootgrid('reload');
+            }
+        });
+    }
+
+    $( "#command-add" ).click(function() {
+        $('#add_model').modal('show');
+    });
+    $( "#btn_add" ).click(function() {
+        ajaxAction('add');
+    });
+    $( "#btn_edit" ).click(function() {
+        ajaxAction('edit');
+    });
+    $("#btn_edit_device").click(function() {
+        ajaxAction('edit_device');
+
+        setTimeout(() => {
+            $('#edit_device_model').modal('hide');
+        }, 1000);
+    });
 });
 </script>

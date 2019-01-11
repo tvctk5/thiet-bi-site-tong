@@ -33,7 +33,7 @@ $db = new dbObj();
 
     // Lấy các thuộc tính của trạm
 
-    $sqlhostDetail = "SELECT dh.hostId, dh.deviceId, dh.state, dh.value as isSound, d.on_text, d.off_text FROM device_host dh join device d on dh.deviceId = d.id where dh.hostId in (SELECT h.id FROM host h join user_host uh on uh.hostId = h.id join user u on u.Id=uh.userId where uh.userId =" . $_SESSION['userid'] . " and h.status=1) order by dh.hostId";
+    $sqlhostDetail = "SELECT dh.hostId, dh.deviceId, dh.state, dh.value as isSound, dh.status, d.on_text, d.off_text FROM device_host dh join device d on dh.deviceId = d.id where dh.hostId in (SELECT h.id FROM host h join user_host uh on uh.hostId = h.id join user u on u.Id=uh.userId where uh.userId =" . $_SESSION['userid'] . " and h.status=1) order by dh.hostId";
     $qhostDetail = mysqli_query($connString, $sqlhostDetail) or die("error to fetch tot hosts data");
     //$dataHost[] = null;
 
@@ -53,10 +53,14 @@ $db = new dbObj();
     function GetHostDetailToText($dataHostDetail, $hostId, $deviceId) {
       $val = GetHostDetail($dataHostDetail, $hostId, $deviceId);
       // echo "<script>alert('". $val["state"] ."');</script>";
-      if($val["state"] == 1){
-        echo "<td class='device-warning'>" . $val["on_text"] . "</td>";
-      } else {
-        echo "<td>" . $val["off_text"] . "</td>";
+      if($val["status"] == 1) {
+        if($val["state"] == 1){
+          echo "<td class='device-warning'>" . $val["on_text"] . "</td>";
+        } else {
+          echo "<td>" . $val["off_text"] . "</td>";
+        }
+      } else{
+        echo "<td></td>";
       }
     }
     function GetHostDetailToText_ConnectionState($row) {
@@ -73,14 +77,14 @@ $db = new dbObj();
       if($row["allow_sound"] == 0){
         $mute = 1;
       }
-      if(GetHostDetail($dataHostDetail, $hostId, 1)["state"] == 1 || 
-        GetHostDetail($dataHostDetail, $hostId, 2)["state"] == 1 ||  
-        GetHostDetail($dataHostDetail, $hostId, 3)["state"] == 1 ||  
-        GetHostDetail($dataHostDetail, $hostId, 4)["state"] == 1 ||  
-        GetHostDetail($dataHostDetail, $hostId, 5)["state"] == 1 ||  
-        GetHostDetail($dataHostDetail, $hostId, 6)["state"] == 1 ||  
-        GetHostDetail($dataHostDetail, $hostId, 7)["state"] == 1 ||  
-        GetHostDetail($dataHostDetail, $hostId, 8)["state"] == 1 || 
+      if((GetHostDetail($dataHostDetail, $hostId, 1)["status"] == 1 && GetHostDetail($dataHostDetail, $hostId, 1)["state"] == 1) || 
+        (GetHostDetail($dataHostDetail, $hostId, 2)["status"] == 1 && GetHostDetail($dataHostDetail, $hostId, 2)["state"] == 1) ||  
+        (GetHostDetail($dataHostDetail, $hostId, 3)["status"] == 1 && GetHostDetail($dataHostDetail, $hostId, 3)["state"] == 1) ||  
+        (GetHostDetail($dataHostDetail, $hostId, 4)["status"] == 1 && GetHostDetail($dataHostDetail, $hostId, 4)["state"] == 1) ||  
+        (GetHostDetail($dataHostDetail, $hostId, 5)["status"] == 1 && GetHostDetail($dataHostDetail, $hostId, 5)["state"] == 1) ||  
+        (GetHostDetail($dataHostDetail, $hostId, 6)["status"] == 1 && GetHostDetail($dataHostDetail, $hostId, 6)["state"] == 1) ||  
+        (GetHostDetail($dataHostDetail, $hostId, 7)["status"] == 1 && GetHostDetail($dataHostDetail, $hostId, 7)["state"] == 1) ||  
+        (GetHostDetail($dataHostDetail, $hostId, 8)["status"] == 1 && GetHostDetail($dataHostDetail, $hostId, 8)["state"] == 1) || 
         $row["connection_status"] == 0){
         $classSound = "app-sound-on";
         echo "<td class='text-center app-sound sound_on " . $classSound . "' hostid='". $hostId ."' userid='". $userId ."' mute='" . $mute . "'></td>";

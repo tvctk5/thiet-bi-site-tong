@@ -21,6 +21,12 @@
 	 case 'delete':
 		$empCls->deleteHost($params);
 	 break;
+	 case 'get-list-device-by-hostid':
+		$empCls->getDeviceStatus($params);
+	 break;
+	 case 'edit_device':
+		$empCls->updateDeviceHost($params);
+	 break;
 	 default:
 	 $empCls->getHosts($params);
 	 return;
@@ -36,6 +42,12 @@
 	public function getHosts($params) {
 		
 		$this->data = $this->getRecords($params);
+		
+		echo json_encode($this->data);
+	}
+	public function getDeviceStatus($params) {
+		
+		$this->data = $this->getDeviceByHostId($params);
 		
 		echo json_encode($this->data);
 	}
@@ -73,10 +85,10 @@
 				}
 
 				// Insert device - host
-				$values .= "(". $hostid .",". $row["id"] .",0,". $row["amplitude"] .",'". $row["value"] ."')";
+				$values .= "(". $hostid .",". $row["id"] .",0,". $row["amplitude"] .",'". $row["value"] ."', 1)";
 			}
 
-			$sql = "INSERT INTO `device_host` (hostId, deviceId, state,amplitude,value) VALUES " . $values . ";  ";
+			$sql = "INSERT INTO `device_host` (hostId, deviceId, state,amplitude,value, status) VALUES " . $values . ";  ";
 			echo $result = mysqli_query($this->conn, $sql) or die("error to insert host data");
 		}
 
@@ -205,6 +217,50 @@
 		}
 
 		// echo $result = mysqli_query($this->conn, $sql) or die("error to delete host data");
+	}
+
+	function getDeviceByHostId($params) {		
+	   // getting total number records without any search
+		$sql = "SELECT dh.id as device_hostid, d.name, dh.status, d.type FROM `device_host` dh join device d on d.id = dh.deviceId and dh.hostId=" . $params["id"] . " order by d.id";
+		
+		$queryRecords = mysqli_query($this->conn, $sql) or die("error to fetch hosts data");
+		$data = [];
+		while( $row = mysqli_fetch_assoc($queryRecords) ) { 
+			$data[] = $row;
+		}
+
+		return $data;
+	}
+
+	function updateDeviceHost($params) {
+		$data = array();
+		//print_R($_POST);die;
+		$query ='';
+		$lstId = '';
+
+		if(isset($params["lstId"])){
+			$lstId = $params["lstId"];
+		}
+
+		if($lstId == ''){
+			echo 'List ids to update not found';
+			return;
+		}
+
+		$Ids = explode(",", $lstId);
+
+		foreach ($Ids as $id){
+			$status = 0;
+
+			if(isset($params["chk_" . $id]) && $params["chk_" . $id] == "on"){
+				$status = 1;
+			}
+
+			$sql = "Update `device_host` set status = $status WHERE id=". $id . ";";
+			$result = mysqli_query($this->conn, $sql) or die("FAILED: " . $sql);
+		}
+
+		echo 'Update device host: Successfully';
 	}
 }
 ?>

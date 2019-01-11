@@ -20,3 +20,7 @@
 .link-to-home{
     font-size: 60% !important; 
   }
+.host-device-title{
+    padding: 3px;
+    background-color: #ececec;
+}
