@@ -17,7 +17,10 @@
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 		<div class="well clearfix">
 			<div class="pull-right"><button type="button" class="btn btn-xs btn-primary" id="command-add" data-row-id="0">
-			<span class="glyphicon glyphicon-plus"></span> Thêm trạm</button></div></div>
+            <span class="glyphicon glyphicon-plus"></span> Thêm trạm</button>
+            <button type="button" class="btn btn-xs btn-primary" id="command-update-quota" data-row-id="0">
+            <span class="glyphicon glyphicon-plus"></span> Cập nhật định mức</button>
+        </div></div>
 		<table id="host_grid" class="table table-condensed table-hover table-striped" width="60%" cellspacing="0" data-toggle="bootgrid">
 			<thead>
 				<tr>
@@ -139,6 +142,50 @@
         </div>
     </div>
 </div>
+<div id="setting_quota_model" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Cấu hình định mức trên trạm</h4>
+            </div>
+            <div class="">
+                <form method="post" id="frm_setting_quota">
+                    <input type="hidden" value="setting_quota" name="action" id="action">
+                    <div id="device_quota_list">
+                    </div>
+			    </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+                <button type="button" id="btn_setting_quota" name="btn_setting_quota" class="btn btn-primary">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="sync_update_quota_model" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Cập nhật định mức trên các trạm lần đầu</h4>
+            </div>
+            <div class="">
+                <form method="post" id="frm_sync_update_quota">
+                    <input type="hidden" value="sync_update_quota" name="action" id="action">
+                    <div id="device_quota_list">
+                    </div>
+			    </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+                <button type="button" id="btn_sync_update_quota" name="btn_sync_update_quota" class="btn btn-primary">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
 <script type="text/javascript">
@@ -160,6 +207,7 @@ $( document ).ready(function() {
 		        {
 		            return "<button title='Sửa thông tin' type=\"button\" class=\"btn btn-xs btn-default command-edit\" data-row-id=\"" + row.id + "\"><span class=\"glyphicon glyphicon-edit\"></span></button> " + 
                         "<button title='Ẩn hiện thiết bị' type=\"button\" class=\"btn btn-xs btn-default command-edit-device\" data-row-id=\"" + row.id + "\"><span class=\"glyphicon glyphicon-th-large\"></span></button> " + 
+                        "<button title='Cấu hình định mức' type=\"button\" class=\"btn btn-xs btn-default command-setting-quota\" data-row-id=\"" + row.id + "\"><span class=\"glyphicon glyphicon-cog\"></span></button> " + 
 		                "<button title='Xóa thông tin' type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" + row.id + "\"><span class=\"glyphicon glyphicon-trash\"></span></button>" + 
 		                "<a title='Xem danh sách tài khoản' href='host_detail.php?hostid="+ row.id +"' class=\"btn btn-xs btn-default command-detail\" data-row-id=\"" + row.id + "\"><span class=\"glyphicon glyphicon-zoom-in\"></span></a>";
 		        }
@@ -275,6 +323,58 @@ $( document ).ready(function() {
                 html += '<input type="hidden" name="lstId" id="lstId" value="' + lstId + '">';
                 $("#device_list").html(html);
         });
+    }).end().find(".command-setting-quota").on("click", function(e)
+    {
+        $('#setting_quota_model').modal('show');
+        let id=$(this).data("row-id");
+        // $('#edit_id').val(id);
+	    //alert("id="+id);
+
+        // device_list
+        $.post('response_host.php', { id: id, action:'setting-quota-by-hostid'}
+            , function(data){
+                // when ajax returns (callback), 
+                // $("#host_grid").bootgrid('reload');
+                // alert(data);
+                data = JSON.parse(data);
+                let lstId = '';
+                let html ='';
+                let html_temp ='';
+                let last_item = null;
+                for(let i = 0; i < data.length; i++){
+                    let item = data[i];
+
+                    // alert(item);
+                    let checked='';
+                    if(item.status == 1){
+                        checked='checked';
+                    }
+                    
+                    if(lstId != ''){
+                        lstId += ',';
+                    }
+                    // save list id to update
+                    lstId += item.id + '';
+
+                    html_temp += "<div class='form-group col-sm-12'><span class='col-sm-6'>" + item.calendar_name + ": </span>";
+                    html_temp += "<input name='device_quota_" + item.id + "' id='device_quota_" + item.id + "' class='quota-input' type='text' value='" + item.quota + "' /> (" + item.unit + ")";                        
+                    html_temp += "</div>";
+
+                    if(last_item == null || last_item.deviceId != item.deviceId) {
+                        html +='<div class="form-group col-sm-6 quota-device"><div class="host-device-title title-bold">' + item.name + '</div>';
+                    } else {
+                        html += html_temp + '</div>';
+                        html_temp = '';
+                    }
+
+                    last_item = item;
+
+                    // html += '<div class="form-group col-sm-6"><input type="checkbox" class="" id="chk_' + item.device_hostid + '" name="chk_' + item.device_hostid + '" ' + checked + ' /> ' + item.name + '</div>'
+                }
+
+                html += '<input type="hidden" name="lstId" id="lstId" value="' + lstId + '">';
+                $("#device_quota_list").html(html);
+        });
     });
 });
 
@@ -298,6 +398,9 @@ function ajaxAction(action) {
     $( "#command-add" ).click(function() {
         $('#add_model').modal('show');
     });
+    $( "#command-update-quota" ).click(function() {
+        ajaxAction('sync_update_quota');
+    });
     $( "#btn_add" ).click(function() {
         ajaxAction('add');
     });
@@ -309,6 +412,14 @@ function ajaxAction(action) {
 
         setTimeout(() => {
             $('#edit_device_model').modal('hide');
+        }, 1000);
+    });
+
+    $("#btn_setting_quota").click(function() {
+        ajaxAction('setting_quota');
+
+        setTimeout(() => {
+            $('#setting_quota_model').modal('hide');
         }, 1000);
     });
 });
