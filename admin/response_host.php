@@ -24,8 +24,17 @@
 	 case 'get-list-device-by-hostid':
 		$empCls->getDeviceStatus($params);
 	 break;
+	 case 'setting-quota-by-hostid':
+		$empCls->quotaInfo($params);
+	 break;
 	 case 'edit_device':
 		$empCls->updateDeviceHost($params);
+	 break;
+	 case 'setting_quota':
+		$empCls->updateDeviceQuota($params);
+	 break;
+	 case 'sync_update_quota':
+		$empCls->sync_update_quota();
 	 break;
 	 default:
 	 $empCls->getHosts($params);
@@ -48,6 +57,12 @@
 	public function getDeviceStatus($params) {
 		
 		$this->data = $this->getDeviceByHostId($params);
+		
+		echo json_encode($this->data);
+	}
+	public function quotaInfo($params) {
+		
+		$this->data = $this->getQuotaInfoByHostId($params);
 		
 		echo json_encode($this->data);
 	}
@@ -74,9 +89,60 @@
 
 		// Get device
 		$sql = "SELECT *  FROM device";
-		$result = $conn->query($sql);
+		$result_device = $conn->query($sql) or die($conn->error);
+		$num_rows_device = $result_device->num_rows;
+		$data_device = [];
+		while( $row = mysqli_fetch_assoc($result_device) ) { 
+			$data_device[] = $row;
+		}
 
-		if ($result->num_rows > 0) {
+		// ---------------------------------------------
+		// Get calendar to set quota
+		$sql_calendar = "SELECT *  FROM calendar";
+		$result_calendar = $conn->query($sql_calendar) or die($conn->error);
+		$num_rows_calendar = $result_calendar->num_rows;
+		$data_calendar = [];
+		while( $row = mysqli_fetch_assoc($result_calendar) ) { 
+			$data_calendar[] = $row;
+		}
+		// ---------------------------------------------
+
+		if ($num_rows_device > 0) {
+			// build query
+			$values = "";
+			//while($row = $result->fetch_assoc()) {
+			foreach ($data_device as $row){
+				// Insert device - host
+				$values = "(". $hostid .",". $row["id"] .",0,". $row["amplitude"] .",'". $row["value"] ."', 1)";
+
+				$sql = "INSERT INTO `device_host` (hostId, deviceId, state,amplitude,value, status) VALUES " . $values . ";  ";
+				echo $result_device_host = mysqli_query($this->conn, $sql) or die("error to insert device_host data:". $conn->error);
+				// $device_host_id = mysqli_insert_id($this->conn);
+
+				// Device for input type
+				if($row["typeId"] == 0){
+					// Insert quota for each device on the host
+					if ($num_rows_calendar > 0) {
+						// build query
+						$values = "";
+						// while($row_calendar = $result_calendar->fetch_assoc()) {
+						foreach ($data_calendar as $row_calendar){
+							if($values != ""){
+								$values .= ",";
+							}
+			
+							// Insert device - host
+							$values .= "(". $row["id"] .",". $hostid .",". $row_calendar["id"] .",". $row["quota"] .",'". $row["operator"] ."')";
+						}
+			
+						$sql = "INSERT INTO `device_host_quota` (deviceId, hostId, calendarId, quota, operator) VALUES " . $values . ";  ";
+						echo $result_device_host_quota = mysqli_query($this->conn, $sql) or die("error to insert device_host_quota data: query: (". $sql . "); error: ". $conn->error);
+					}
+					// End: Insert quota for each device on the host
+				}
+			}
+
+			/*
 			// build query
 			$values = "";
 			while($row = $result->fetch_assoc()) {
@@ -90,6 +156,7 @@
 
 			$sql = "INSERT INTO `device_host` (hostId, deviceId, state,amplitude,value, status) VALUES " . $values . ";  ";
 			echo $result = mysqli_query($this->conn, $sql) or die("error to insert host data");
+			 */
 		}
 
 		// Admin user: Auto insert user-host full quyền
@@ -199,11 +266,17 @@
 			// Delete data related
 			$sql_user_host = "delete from `user_host` WHERE hostId=".$params["id"];
 			$sql_device_host = "delete from `device_host` WHERE hostId=".$params["id"];
+			$sql_device_quota = "delete from `device_host_quota` WHERE hostId=".$params["id"];
 
 			if ($conn->query($sql_user_host) === TRUE) {
 				echo "Record deleted successfully";
 				if ($conn->query($sql_device_host) === TRUE) {
 					echo "Record deleted successfully";
+					if ($conn->query($sql_device_quota) === TRUE) {
+						echo "Record deleted successfully";
+					} else {
+						echo "Error deleting record: " . $conn->error;
+					}
 				} else {
 					echo "Error deleting record: " . $conn->error;
 				}
@@ -230,6 +303,20 @@
 		}
 
 		return $data;
+	}
+
+	function getQuotaInfoByHostId($params) {		
+		// getting total number records without any search
+		 $sql = "SELECT dhq.id, dhq.deviceId, dhq.hostId, dhq.calendarId, dhq.quota, dhq.operator, d.name, d.unit, c.name as calendar_name FROM `device_host_quota` dhq 
+		 join device d on d.id = dhq.deviceId and dhq.hostId=" . $params["id"] . " left join calendar c on c.id=dhq.calendarId order by d.id, dhq.id";
+		 
+		 $queryRecords = mysqli_query($this->conn, $sql) or die("error to fetch hosts data");
+		 $data = [];
+		 while( $row = mysqli_fetch_assoc($queryRecords) ) { 
+			 $data[] = $row;
+		 }
+ 
+		 return $data;
 	}
 
 	function updateDeviceHost($params) {
@@ -261,6 +348,105 @@
 		}
 
 		echo 'Update device host: Successfully';
+	}
+
+	function updateDeviceQuota($params) {
+		$data = array();
+		//print_R($_POST);die;
+		$query ='';
+		$lstId = '';
+
+		if(isset($params["lstId"])){
+			$lstId = $params["lstId"];
+		}
+
+		if($lstId == ''){
+			echo 'List ids to update not found';
+			return;
+		}
+
+		$Ids = explode(",", $lstId);
+
+		foreach ($Ids as $id){
+			$value = "1";
+			if(isset($params["device_quota_" . $id])){
+				$value = $params["device_quota_" . $id];
+			}
+
+			$sql = "Update `device_host_quota` set quota = $value WHERE id=". $id . ";";
+			$result = mysqli_query($this->conn, $sql) or die("FAILED: " . $sql);
+		}
+
+		echo 'Update device host: Successfully';
+	}
+
+	function sync_update_quota() {
+		$conn = $this->conn;
+		$data = array();
+
+		// Get host
+		$sql = "SELECT *  FROM host";
+		$result_host = $conn->query($sql) or die($conn->error);
+		$num_rows_host = $result_host->num_rows;
+		$data_host = [];
+		while( $row = mysqli_fetch_assoc($result_host) ) { 
+			$data_host[] = $row;
+		}
+		
+		// Get device
+		$sql = "SELECT *  FROM device where typeId=0";
+		$result_device = $conn->query($sql) or die($conn->error);
+		$num_rows_device = $result_device->num_rows;
+		$data_device = [];
+		while( $row = mysqli_fetch_assoc($result_device) ) { 
+			$data_device[] = $row;
+		}
+
+		// ---------------------------------------------
+		// Get calendar to set quota
+		$sql_calendar = "SELECT *  FROM calendar";
+		$result_calendar = $conn->query($sql_calendar) or die($conn->error);
+		$num_rows_calendar = $result_calendar->num_rows;
+		$data_calendar = [];
+		while( $row = mysqli_fetch_assoc($result_calendar) ) { 
+			$data_calendar[] = $row;
+		}
+		// ---------------------------------------------
+
+		if ($num_rows_host > 0) {
+			//while($row_host = $result_host->fetch_assoc()) {
+			foreach ($data_host as $row_host){
+				$hostid = $row_host["id"];
+
+				if ($num_rows_device > 0) {
+					// build query
+					$values = "";
+					// while($row = $result_device->fetch_assoc()) {
+					foreach ($data_device as $row){
+						// Insert quota for each device on the host
+						if ($num_rows_calendar > 0) {
+							// build query
+							$values = "";
+							// while($row_calendar = $result_calendar->fetch_assoc()) {
+							foreach ($data_calendar as $row_calendar){
+								if($values != ""){
+									$values .= ",";
+								}
+				
+								// Insert device - host
+								$values .= "(". $row["id"] .",". $hostid .",". $row_calendar["id"] .",". $row["quota"] .",'". $row["operator"] ."')";
+							}
+				
+							$sql = "INSERT INTO `device_host_quota` (deviceId, hostId, calendarId, quota, operator) VALUES " . $values . ";  ";
+							echo $result_device_host_quota = mysqli_query($this->conn, $sql) or die("error to insert device_host_quota data: query: (". $sql . "); error: ". $conn->error);
+						}
+						// End: Insert quota for each device on the host
+					}
+				}
+			}
+		}	
+
+
 	}
 }
 ?>

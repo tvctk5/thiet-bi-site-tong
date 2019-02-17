@@ -325,10 +325,10 @@ $(".fa-volume").on("click", function(){
 });
 
 // reload page
-var objMetaRefresh = $(document).find('meta[refreshpage="true"]').first();
-if(objMetaRefresh != null && objMetaRefresh != undefined){
+var objMetaRefresh = $(document).find('meta[refreshpage="true"]');
+if(objMetaRefresh != null && typeof(objMetaRefresh) == 'object' && objMetaRefresh.length > 0){
+	objMetaRefresh = objMetaRefresh[0];
 	var time_refresh = parseInt(objMetaRefresh.attr('content'));
-	
 	setInterval(function(){
 		if(!notReload){
 			$(".obj-button-up-down-icon").unbind("click");
@@ -441,14 +441,16 @@ function setRingSound(){
 		$(this).find(".clearfix").first().append('<i class="fa fa-volume ' + cssClass + " " + cssClass_on_off + '" id="volum-' + id + '" objid="' + id + '"></i>');
 	});
 
-	ion.sound({
-		sounds: sounds,
-		volume: 1,
-		path: "js/ion.sound-3.0.7/sounds/",
-		preload: true,
-		loop: true,
-		multiplay: true
-	});
+	if (typeof(ion) !== 'undefined'){
+		ion.sound({
+			sounds: sounds,
+			volume: 1,
+			path: "js/ion.sound-3.0.7/sounds/",
+			preload: true,
+			loop: true,
+			multiplay: true
+		});
+	}
 
 	// Simple
 	$(document).find("div.obj-vao").each(function(index){

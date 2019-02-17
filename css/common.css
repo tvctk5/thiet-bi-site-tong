@@ -24,3 +24,14 @@
     padding: 3px;
     background-color: #ececec;
 }
+.quota-device{
+    border: 1px solid #c7c7c7;
+}
+.title-bold{
+    font-weight:bold;
+}
+.quota-input{
+    max-width: 50px;
+    text-align: right;
+    padding-right: 3px;
+}
