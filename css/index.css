@@ -556,3 +556,12 @@ body{
 #tbl-host th {
   font-size: 90% !important;
 }
+.td-text-right{
+  text-align: right;
+}
+.th-note{
+  font-size: 80% !important;
+}
+.th-full-size{
+  /*width: 20% !important;*/
+}

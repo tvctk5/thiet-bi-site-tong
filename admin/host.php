@@ -18,7 +18,7 @@
 		<div class="well clearfix">
 			<div class="pull-right"><button type="button" class="btn btn-xs btn-primary" id="command-add" data-row-id="0">
             <span class="glyphicon glyphicon-plus"></span> Thêm trạm</button>
-            <button type="button" class="btn btn-xs btn-primary" id="command-update-quota" data-row-id="0">
+            <button type="button" class="btn btn-xs btn-primary hide" id="command-update-quota" data-row-id="0">
             <span class="glyphicon glyphicon-plus"></span> Cập nhật định mức</button>
         </div></div>
 		<table id="host_grid" class="table table-condensed table-hover table-striped" width="60%" cellspacing="0" data-toggle="bootgrid">

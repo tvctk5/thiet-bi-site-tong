@@ -322,15 +322,47 @@ function PrintList($conn, $count) {
 	}
 }
 
+function getQuota($dataQuotaHost, $hostId, $deviceId, $month){
+	foreach ($dataQuotaHost as $row){
+		if($row["hostId"] == $hostId && $row["deviceId"] == $deviceId && strpos($row["months"], ',' . $month . ',') !== false){
+			return $row;
+		}
+	}
+}
+
 // Print object
-function PrintLine($Id, $objName, $state, $startdate, $enddate, $hostid, $host_name, $note) {
+function PrintLine($Id, $objName, $state, $startdate, $enddate, $hostid, $host_name, $note, $row, $dataQuotaHost) {
 	$statuName = 'OFF';
 	if($state == "1"){
 		$statuName = 'ON';
 	}
+	// Định mức
+	$quotaItem = getQuota($dataQuotaHost, $hostid, $row["deviceid"], $row["month"]);
+	$quota = $quotaItem["quota"];
+	$operator = $quotaItem["operator"];
+
+	$time = '';
+	$result = '';
+	
+	if ($row["enddate"] != null){
+		$time = $row["hours"]; // . "-" . $row["seconds"] . "-" . $row["hours_1"];
+
+		if($operator == "*"){
+			$result = $time * $quota;
+		} else {
+			$result = $time - $quota;
+		}
+	}
+
+
 	// <td class='hidden'>
 	// $deviceid
 	// </td>
+	
+	// <td style='display:none;'>
+	// $statuName
+	// </td>
+	
 	echo "<tr>
 		<td>
 			$Id
@@ -344,17 +376,20 @@ function PrintLine($Id, $objName, $state, $startdate, $enddate, $hostid, $host_n
 		<td>
 			$objName
 		</td>
-		<td style='display:none;'>
-			$statuName
-		</td>
 		<td>
 			$startdate
 		</td>
 		<td>
 			$enddate
 		</td>
-		<td>
-			
+		<td class='td-text-right'>
+			$time
+		</td>
+		<td class='td-text-right'>
+			$quota
+		</td>
+		<td class='td-text-right'>
+			$result
 		</td>
 		<td>
 			$note
