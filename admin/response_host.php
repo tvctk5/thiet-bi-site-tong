@@ -371,6 +371,7 @@
 			$value = "1";
 			if(isset($params["device_quota_" . $id])){
 				$value = $params["device_quota_" . $id];
+				$value = str_replace(",", ".", $value);
 			}
 
 			$sql = "Update `device_host_quota` set quota = $value WHERE id=". $id . ";";

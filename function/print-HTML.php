@@ -322,38 +322,18 @@ function PrintList($conn, $count) {
 	}
 }
 
-function getQuota($dataQuotaHost, $hostId, $deviceId, $month){
-	foreach ($dataQuotaHost as $row){
-		if($row["hostId"] == $hostId && $row["deviceId"] == $deviceId && strpos($row["months"], ',' . $month . ',') !== false){
-			return $row;
-		}
-	}
-}
-
 // Print object
-function PrintLine($Id, $objName, $state, $startdate, $enddate, $hostid, $host_name, $note, $row, $dataQuotaHost) {
+function PrintLine($Id, $objName, $state, $startdate, $enddate, $hostid, $host_name, $note, $row) {
 	$statuName = 'OFF';
 	if($state == "1"){
 		$statuName = 'ON';
 	}
 	// Định mức
-	$quotaItem = getQuota($dataQuotaHost, $hostid, $row["deviceid"], $row["month"]);
-	$quota = $quotaItem["quota"];
-	$operator = $quotaItem["operator"];
+	$quota = $row["quota"];
+	$operator = $row["operator"];
 
-	$time = '';
-	$result = '';
-	
-	if ($row["enddate"] != null){
-		$time = $row["hours"]; // . "-" . $row["seconds"] . "-" . $row["hours_1"];
-
-		if($operator == "*"){
-			$result = $time * $quota;
-		} else {
-			$result = $time - $quota;
-		}
-	}
-
+	$time = $row["hours"];
+	$result = $row["result"];
 
 	// <td class='hidden'>
 	// $deviceid

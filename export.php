@@ -29,9 +29,6 @@ if (isset($_POST["btn_submit"])) {
 
 $conn = ConnectDatabse();
 
-// quota for host
-$dataQuotaHost[] = null;
-
 // Get host
 $sqlhost = "SELECT distinct * FROM host h join user_host uh on uh.hostId=h.id and uh.userId=" . $_SESSION['userid'] . " order by name";
 $qhost = mysqli_query($conn, $sqlhost) or die("error to fetch tot hosts data:". $conn->error);
@@ -56,17 +53,8 @@ $start_date = (isset($_GET['start_date']) && $_GET['start_date'] != '') ? $_GET[
 $end_date = (isset($_GET['end_date']) && $_GET['end_date'] != '') ? $_GET['end_date'] : '';
 
 $hostid = '';
-$sqlquotahost = "SELECT d.*, c.months FROM device_host_quota d join calendar c on d.calendarId=c.id";
 if (isset($_GET['hostid']) && $_GET['hostid'] != '') {
     $hostid = $_GET['hostid'];
-
-    // Get host
-    $sqlquotahost .= " WHERE d.hostId=" . $hostid;
-}
-
-$qquotahost = mysqli_query($conn, $sqlquotahost) or die("error to fetch tot hosts data; Query: " .$sqlquotahost . '; Error:'. $conn->error);
-while( $row = mysqli_fetch_assoc($qquotahost) ) { 
-    $dataQuotaHost[] = $row;
 }
 
 $deviceid = '';
@@ -147,9 +135,9 @@ $start = ($current_page - 1) * $limit;
 // BƯỚC 5: TRUY VẤN LẤY DANH SÁCH TIN TỨC
 // Có limit và start rồi thì truy vấn CSDL lấy danh sách tin tức
 $query_data = "SELECT distinct hi.id, hi.startdate, hi.enddate, hi.value, hi.value as state, d.name, d.id as deviceid, d.objid, hi.hostid as hostid, h.name as host_name, '' as note,
-TIME_TO_SEC(TIMEDIFF(hi.enddate, hi.startdate)) as seconds, TIME_TO_SEC(TIMEDIFF(hi.enddate, hi.startdate))/3600 as hours, MONTH(hi.startdate) as month
+hi.hours, hi.minutes, hi.seconds, hi.month_of_log, hi.quota, hi.operator, hi.result
 FROM " . $join . " left join device d on hi.deviceid = d.id   WHERE 1=1 " . $date_condition . " ORDER BY hi.id DESC, hi.startdate DESC LIMIT $start, $limit";
-$result = mysqli_query($conn, $query_data) or die("FAILED: " . $query_data);
+$result = mysqli_query($conn, $query_data) or die("FAILED: " . $query_data . "; Detail: ". $conn->error);
 // $result = $conn->query($query_data)  or die("FAILED: " . $query_data);
 $result_num_rows = $result->num_rows;
 // echo $query_data;
@@ -307,7 +295,7 @@ echo '<input type="text" id="end_date_search" name="end_date_search" placeholder
 // BƯỚC 6: HIỂN THỊ DANH SÁCH TIN TỨC
 if ($result_num_rows > 0) {
     while ($row = mysqli_fetch_assoc($result)){
-        PrintLine($row["id"], $row["name"], $row["state"], $row["startdate"], $row["enddate"], $row["hostid"], $row["host_name"], $row["note"], $row, $dataQuotaHost);
+        PrintLine($row["id"], $row["name"], $row["state"], $row["startdate"], $row["enddate"], $row["hostid"], $row["host_name"], $row["note"], $row);
     }
 } else {
     echo '<tr><td colspan="10"><center>Không tìm thấy dữ liệu</center></td></tr>';
