@@ -21,6 +21,9 @@
 	 case 'delete':
 		$empCls->deleteHost($params);
 	 break;
+	 case 'delete-version':
+		$empCls->deleteVersion($params);
+	 break;
 	 case 'get-list-device-by-hostid':
 		$empCls->getDeviceStatus($params);
 	 break;
@@ -72,6 +75,7 @@
 		$status = 0;
 		$allow_send_sms = 0;
 		$allow_sound = 1;
+		$auto_upgrade = 0;
 
 		if(isset($params["status"]) && $params["status"] == "on"){
 			$status = 1;
@@ -81,7 +85,11 @@
 			$allow_send_sms = 1;
 		}
 
-		$sql = "INSERT INTO `host` (name, phone, url, status, allow_send_sms) VALUES('" . $params["name"] . "', '" . $params["phone"] . "','" . $params["url"] . "'," . $status .", ". $allow_send_sms .");  ";
+		if(isset($params["auto_upgrade"]) && $params["auto_upgrade"] == "on"){
+			$auto_upgrade = 1;
+		}
+
+		$sql = "INSERT INTO `host` (name, phone, url, status, allow_send_sms, auto_upgrade) VALUES('" . $params["name"] . "', '" . $params["phone"] . "','" . $params["url"] . "'," . $status .", ". $allow_send_sms .", " . $auto_upgrade . ");  ";
 		
 		echo $result = mysqli_query($this->conn, $sql) or die("error to insert host data");
 		// insert device
@@ -241,6 +249,7 @@
 		
 		$status = 0;
 		$allow_send_sms =0;
+		$auto_upgrade = 0;
 
 		if(isset($params["edit_status"]) && $params["edit_status"] == "on"){
 			$status = 1;
@@ -249,8 +258,12 @@
 		if(isset($params["edit_allow_send_sms"]) && $params["edit_allow_send_sms"] == "on"){
 			$allow_send_sms = 1;
 		}
+		
+		if(isset($params["edit_auto_upgrade"]) && $params["edit_auto_upgrade"] == "on"){
+			$auto_upgrade = 1;
+		}
 
-		$sql = "Update `host` set name = '" . $params["edit_name"] . "', phone='" . $params["edit_phone"]."', url='" . $params["edit_url"] . "', status = $status, allow_send_sms=$allow_send_sms WHERE id='". $_POST["edit_id"] ."'";
+		$sql = "Update `host` set name = '" . $params["edit_name"] . "', phone='" . $params["edit_phone"]."', url='" . $params["edit_url"] . "', status = $status, allow_send_sms=$allow_send_sms , auto_upgrade=$auto_upgrade WHERE id='". $_POST["edit_id"] ."'";
 		echo $result = mysqli_query($this->conn, $sql) or die($sql);
 	}
 	
@@ -287,6 +300,22 @@
 
 		} else {
 			echo "Error deleting record: " . $conn->error;
+		}
+
+		// echo $result = mysqli_query($this->conn, $sql) or die("error to delete host data");
+	}
+	
+	function deleteVersion($params) {
+		$data = array();
+		$conn = $this->conn;
+		//print_R($_POST);die;
+		$sql = "UPDATE `host` SET versionId=0, version='' WHERE id='".$params["id"]."'";
+		
+		if ($conn->query($sql) === TRUE) {
+			echo "Record updated successfully";
+			
+		} else {
+			echo "Error deleting version: " . $conn->error;
 		}
 
 		// echo $result = mysqli_query($this->conn, $sql) or die("error to delete host data");

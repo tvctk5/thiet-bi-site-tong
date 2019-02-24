@@ -166,6 +166,7 @@ $db = new dbObj();
       if($_SESSION['user']["isAdmin"] == 1){
         echo " <a href='admin/user.php' target='_self' class='link'>Quản lý tài khoản</a>  || ";
         echo "<a href='admin/host.php' target='_self' class='link'>Quản lý trạm</a> || ";
+        echo "<a href='admin/upgrade.php' target='_self' class='link'>Cập nhật các trạm</a> || ";
       }
       
       echo "<a href='export.php' target='_self' class='link'>Nhật ký</a>";

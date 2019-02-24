@@ -21,7 +21,7 @@
             <button type="button" class="btn btn-xs btn-primary hide" id="command-update-quota" data-row-id="0">
             <span class="glyphicon glyphicon-plus"></span> Cập nhật định mức</button>
         </div></div>
-		<table id="host_grid" class="table table-condensed table-hover table-striped" width="60%" cellspacing="0" data-toggle="bootgrid">
+		<table id="host_grid" class="table table-condensed table-hover table-striped table-auto" width="60%" cellspacing="0" data-toggle="bootgrid">
 			<thead>
 				<tr>
 					<th data-column-id="id" data-type="numeric" data-identifier="true">#</th>
@@ -29,7 +29,10 @@
 					<th data-column-id="phone">Số điện thoại</th>
 					<th data-column-id="url">Đường dẫn</th>
 					<th data-column-id="status">Trạng thái</th>
-					<th data-column-id="allow_send_sms">Kích hoạt SMS</th>
+					<th data-column-id="allow_send_sms">SMS</th>
+					<th data-column-id="auto_upgrade">Auto upgrade</th>
+					<th data-column-id="versionId">Phiên bản</th>
+					<th data-column-id="last_upgrade">Ngày nâng cấp</th>
 					<th data-column-id="connection_status" title='Tình trạng kết nối'>Tình trạng kết nối</th>
 					<th data-column-id="commands" data-formatter="commands" data-sortable="false">Sự kiện</th>
 				</tr>
@@ -68,6 +71,10 @@
 				  <div class="form-group">
                     <label for="allow_send_sms" class="control-label">Kích hoạt SMS:</label>
                     <input type="checkbox" class="" id="allow_send_sms" name="allow_send_sms"/>
+                  </div>
+				  <div class="form-group">
+                    <label for="auto_upgrade" class="control-label">Tự động nâng cấp:</label>
+                    <input type="checkbox" class="" id="auto_upgrade" name="auto_upgrade" checked='checked'/>
                   </div>
                 
             </div>
@@ -110,6 +117,10 @@
 				  <div class="form-group">
                     <label for="edit_allow_send_sms" class="control-label">Kích hoạt SMS:</label>
                     <input type="checkbox" class="" id="edit_allow_send_sms" name="edit_allow_send_sms"/>
+                  </div>
+				  <div class="form-group">
+                    <label for="edit_auto_upgrade" class="control-label">Tự động nâng cấp:</label>
+                    <input type="checkbox" class="" id="edit_auto_upgrade" name="edit_auto_upgrade"/>
                   </div>
 			    </form>
             </div>
@@ -209,6 +220,7 @@ $( document ).ready(function() {
                         "<button title='Ẩn hiện thiết bị' type=\"button\" class=\"btn btn-xs btn-default command-edit-device\" data-row-id=\"" + row.id + "\"><span class=\"glyphicon glyphicon-th-large\"></span></button> " + 
                         "<button title='Cấu hình định mức' type=\"button\" class=\"btn btn-xs btn-default command-setting-quota\" data-row-id=\"" + row.id + "\"><span class=\"glyphicon glyphicon-cog\"></span></button> " + 
 		                "<button title='Xóa thông tin' type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" + row.id + "\"><span class=\"glyphicon glyphicon-trash\"></span></button>" + 
+		                "<button title='Xóa thông tin phiên bản (Cập nhật lại website trên trạm)' type=\"button\" class=\"btn btn-xs btn-default command-delete-version\" data-row-id=\"" + row.id + "\"><span class=\"glyphicon glyphicon-remove-circle\"></span></button>" + 
 		                "<a title='Xem danh sách tài khoản' href='host_detail.php?hostid="+ row.id +"' class=\"btn btn-xs btn-default command-detail\" data-row-id=\"" + row.id + "\"><span class=\"glyphicon glyphicon-zoom-in\"></span></a>";
 		        }
 		    }
@@ -234,6 +246,7 @@ $( document ).ready(function() {
                         $('#edit_url').val(ele.siblings(':nth-of-type(4)').html());
                         var status = parseInt(ele.siblings(':nth-of-type(5)').html());
                         var allow_send_sms = parseInt(ele.siblings(':nth-of-type(6)').html());
+                        var auto_upgrade = parseInt(ele.siblings(':nth-of-type(7)').html());
 
                         if(status == 1){
                             $('#edit_status').prop('checked', true);;                   
@@ -246,6 +259,11 @@ $( document ).ready(function() {
                         } else{
                             $('#edit_allow_send_sms').prop('checked', false);;     
                         }
+                        if(auto_upgrade == 1){
+                            $('#edit_auto_upgrade').prop('checked', true);;                   
+                        } else{
+                            $('#edit_auto_upgrade').prop('checked', false);;     
+                        }
 					} else {
 					 alert('Now row selected! First select row, then click edit button');
 					}
@@ -256,6 +274,20 @@ $( document ).ready(function() {
 					// alert(conf);
                     if(conf){
                                 $.post('response_host.php', { id: $(this).data("row-id"), action:'delete'}
+                                    , function(){
+                                        // when ajax returns (callback), 
+										$("#host_grid").bootgrid('reload');
+                                }); 
+								//$(this).parent('tr').remove();
+								//$("#host_grid").bootgrid('remove', $(this).data("row-id"))
+                    }
+    }).end().find(".command-delete-version").on("click", function(e)
+    {
+	
+		var conf = confirm('Xóa phiên bản nâng cấp để cập nhật lại #' + $(this).data("row-id") + '?');
+					// alert(conf);
+                    if(conf){
+                                $.post('response_host.php', { id: $(this).data("row-id"), action:'delete-version'}
                                     , function(){
                                         // when ajax returns (callback), 
 										$("#host_grid").bootgrid('reload');
