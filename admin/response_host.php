@@ -147,6 +147,18 @@
 						echo $result_device_host_quota = mysqli_query($this->conn, $sql) or die("error to insert device_host_quota data: query: (". $sql . "); error: ". $conn->error);
 					}
 					// End: Insert quota for each device on the host
+				} else {
+					// Định mức kết quả đo
+					if($row["typeId"] == 2){
+						// Insert quota for each device on the host
+							// build query
+							// Insert device - host - quota
+							$values = "(". $row["id"] .",". $hostid .",". $row["quota"] .",'". $row["operator"] ."', 1)";
+				
+							$sql = "INSERT INTO `device_host_quota` (deviceId, hostId, quota, operator, edited) VALUES " . $values . ";  ";
+							echo $result_device_host_quota = mysqli_query($this->conn, $sql) or die("error to insert device_host_quota data: query: (". $sql . "); error: ". $conn->error);
+						// End: Insert quota for each device on the host
+					}
 				}
 			}
 
@@ -323,7 +335,7 @@
 
 	function getDeviceByHostId($params) {		
 	   // getting total number records without any search
-		$sql = "SELECT dh.id as device_hostid, d.name, dh.status, d.type FROM `device_host` dh join device d on d.id = dh.deviceId and dh.hostId=" . $params["id"] . " order by d.id";
+		$sql = "SELECT dh.id as device_hostid, d.name, dh.status, d.type, d.typeId FROM `device_host` dh join device d on d.id = dh.deviceId and dh.hostId=" . $params["id"] . " WHERE d.typeId IN (0,1) order by d.id";
 		
 		$queryRecords = mysqli_query($this->conn, $sql) or die("error to fetch hosts data");
 		$data = [];
@@ -336,7 +348,7 @@
 
 	function getQuotaInfoByHostId($params) {		
 		// getting total number records without any search
-		 $sql = "SELECT dhq.id, dhq.deviceId, dhq.hostId, dhq.calendarId, dhq.quota, dhq.operator, d.name, d.unit, c.name as calendar_name FROM `device_host_quota` dhq 
+		 $sql = "SELECT dhq.id, dhq.deviceId, dhq.hostId, dhq.calendarId, dhq.quota, dhq.operator, d.name, d.unit, c.name as calendar_name, d.typeId FROM `device_host_quota` dhq 
 		 join device d on d.id = dhq.deviceId and dhq.hostId=" . $params["id"] . " left join calendar c on c.id=dhq.calendarId order by d.id, dhq.id";
 		 
 		 $queryRecords = mysqli_query($this->conn, $sql) or die("error to fetch hosts data");
@@ -403,7 +415,7 @@
 				$value = str_replace(",", ".", $value);
 			}
 
-			$sql = "Update `device_host_quota` set quota = $value WHERE id=". $id . ";";
+			$sql = "Update `device_host_quota` set quota = $value, edited=1 WHERE id=". $id . ";";
 			$result = mysqli_query($this->conn, $sql) or die("FAILED: " . $sql);
 		}
 

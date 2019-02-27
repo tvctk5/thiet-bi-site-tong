@@ -24,6 +24,10 @@
     padding: 3px;
     background-color: #ececec;
 }
+.host-device-title-subgroup{
+    padding: 3px;
+    background-color: #47fb5514;
+}
 .quota-device{
     border: 1px solid #c7c7c7;
 }
@@ -40,4 +44,13 @@
 }
 .table-auto{
     width: auto !important;
+}
+.kq-do .form-group{
+
+}
+.kq-do > .form-group:nth-child(even) {
+    background: #cccccc29;
+}
+.kq-do > .form-group:nth-child(odd) {
+    background: #ffb0b040;
 }

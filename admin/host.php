@@ -313,7 +313,8 @@ $( document ).ready(function() {
                 let html ='<div class="form-group col-sm-12 host-device-title">Thiết bị vào</div>';
                 for(let i = 0; i < data.length; i++){
                     let item = data[i];
-                    if(item.type != 'obj-vao'){
+                    // Vào
+                    if(item.typeId != 0){
                         continue;
                     }
 
@@ -334,7 +335,8 @@ $( document ).ready(function() {
                 html +='<div class="form-group col-sm-12 host-device-title">Thiết bị ra</div>';
                 for(let i = 0; i < data.length; i++){
                     let item = data[i];
-                    if(item.type == 'obj-vao'){
+                    // Thiết bị ra
+                    if(item.typeId != 1){
                         continue;
                     }
 
@@ -352,6 +354,7 @@ $( document ).ready(function() {
 
                     html += '<div class="form-group col-sm-6"><input type="checkbox" class="" id="chk_' + item.device_hostid + '" name="chk_' + item.device_hostid + '" ' + checked + ' /> ' + item.name + '</div>'
                 }
+                
                 html += '<input type="hidden" name="lstId" id="lstId" value="' + lstId + '">';
                 $("#device_list").html(html);
         });
@@ -368,18 +371,20 @@ $( document ).ready(function() {
                 // when ajax returns (callback), 
                 // $("#host_grid").bootgrid('reload');
                 // alert(data);
+                // console.log("data: " + data);
                 data = JSON.parse(data);
+                
                 let lstId = '';
                 let html ='';
                 let html_temp ='';
                 let last_item = null;
+                html +='<div class="form-group col-sm-12 quota-device"><div class="host-device-title title-bold">Định mức thiết bị vào</div> </div>';
                 for(let i = 0; i < data.length; i++){
                     let item = data[i];
 
-                    // alert(item);
-                    let checked='';
-                    if(item.status == 1){
-                        checked='checked';
+                    // Only typeId=0
+                    if(item.typeId != 0){
+                        continue;
                     }
                     
                     if(lstId != ''){
@@ -393,18 +398,39 @@ $( document ).ready(function() {
                     html_temp += "</div>";
 
                     if(last_item == null || last_item.deviceId != item.deviceId) {
-                        html +='<div class="form-group col-sm-6 quota-device"><div class="host-device-title title-bold">' + item.name + '</div>';
+                        html +='<div class="form-group col-sm-6 quota-device"><div class="host-device-title-subgroup title-bold">' + item.name + '</div>';
                     } else {
                         html += html_temp + '</div>';
                         html_temp = '';
                     }
 
                     last_item = item;
-
-                    // html += '<div class="form-group col-sm-6"><input type="checkbox" class="" id="chk_' + item.device_hostid + '" name="chk_' + item.device_hostid + '" ' + checked + ' /> ' + item.name + '</div>'
                 }
 
+                //------------------------------ Ket qua do
+                html +='<div class="form-group col-sm-12 quota-device kq-do"><div class="host-device-title title-bold">Định mức kết quả đo</div>';
+                for(let i = 0; i < data.length; i++){
+                    let item = data[i];
+
+                    // Only typeId=2
+                    if(item.typeId != 2){
+                        continue;
+                    }
+                    
+                    if(lstId != ''){
+                        lstId += ',';
+                    }
+                    // save list id to update
+                    lstId += item.id + '';
+
+                    html += "<div class='form-group col-sm-6'><span class='col-sm-6'>" + item.name + ": </span>";
+                    html += "<input name='device_quota_" + item.id + "' id='device_quota_" + item.id + "' class='quota-input' type='text' value='" + item.quota + "' /> " + item.unit;                        
+                    html += "</div>";
+                }
+
+                html += '</div>';
                 html += '<input type="hidden" name="lstId" id="lstId" value="' + lstId + '">';
+
                 $("#device_quota_list").html(html);
         });
     });
