@@ -11,11 +11,10 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['userid'])) {
 	 header('Location: login.php');
 }
 
-//include connection file 
-include_once("connection.php");
+//include connection file
 include_once("sql/sql-function.php");
-$db = new dbObj();
-    $connString =  $db->getConnstring();
+
+    $connString = ConnectDatabse();
     // where uh.userId in (select Id from user where username = '" . $_SESSION['username'] . "') 
     $sqlhost = "SELECT h.*, u.code, uh.allow_sound, uh.userId FROM host h join user_host uh on uh.hostId = h.id join user u on u.Id=uh.userId where uh.userId=" . $_SESSION['userid'] . " and h.status=1 order by h.name";
     $qhost = mysqli_query($connString, $sqlhost) or die("error to fetch tot hosts data");

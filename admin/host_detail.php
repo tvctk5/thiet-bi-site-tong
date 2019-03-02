@@ -1,8 +1,8 @@
 <?php
 //include connection file 
-include_once("../connection.php");
-$db = new dbObj();
-    $connString =  $db->getConnstring();
+include '../sql/sql-function.php';
+
+$connString = ConnectDatabse();
 
     // User
     $hostid = $_REQUEST["hostid"];
@@ -43,7 +43,7 @@ $db = new dbObj();
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Quản lý tài khoản</title>
+<title>Quản lý tài khoản trên trạm</title>
 <link rel="stylesheet" href="../css/common.css" type="text/css" media="all">
 <link rel="stylesheet" href="../dist/bootstrap.min.css" type="text/css" media="all">
 <link href="../dist/jquery.bootgrid.css" rel="stylesheet" />
@@ -345,3 +345,7 @@ function ajaxAction(action) {
     }
 });
 </script>
+
+<?php 
+	CloseDatabase($connString);
+?>

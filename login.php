@@ -13,9 +13,11 @@ session_start();
 <body>
 <?php
 	//Gọi file connection.php ở bài trước
-	require_once("sql/connection.php");
+	require_once("sql/sql-function.php");
 	// Kiểm tra nếu người dùng đã ân nút đăng nhập thì mới xử lý
 	if (isset($_POST["btn_submit"])) {
+        $conn = ConnectDatabse();
+        
 		// lấy thông tin người dùng
 		$username = $_POST["username"];
 		$password = $_POST["password"];
@@ -51,11 +53,17 @@ session_start();
                 $_SESSION['user'] = $user;
                 $_SESSION['userid'] = $user["Id"];
                 $_SESSION['isAdmin'] = $user["isAdmin"];
+                // Close connection
+                CloseDatabase($conn);
+
                 // Thực thi hành động sau khi lưu thông tin vào session
                 // ở đây mình tiến hành chuyển hướng trang web tới một trang gọi là index.php
                 header('Location: index.php');
 			}
-		}
+        }
+        
+        // Close connection
+		CloseDatabase($conn);
 	}
 ?>
 <!--

@@ -1,10 +1,8 @@
 <?php
 	//include connection file 
-	include_once("../connection.php");
-	
-	$db = new dbObj();
-    $connString =  $db->getConnstring();
-    $conn = $connString;
+	include '../sql/sql-function.php';
+
+	$conn = ConnectDatabse();
     
     function CheckFileType($imageFileType)
     {
@@ -106,5 +104,8 @@
         $post_data = json_encode(array('status' => false, 'logs' => $GLOBALS['log'], 'files' => $_FILES, 'post' => $_POST));
         echo $post_data;
     };
+
+    // Close connection
+	CloseDatabase($conn);
 
 ?>

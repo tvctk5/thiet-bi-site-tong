@@ -1,8 +1,8 @@
 <?php
 //include connection file 
-include_once("../connection.php");
-$db = new dbObj();
-    $connString =  $db->getConnstring();
+include '../sql/sql-function.php';
+
+$connString = ConnectDatabse();
 
     // User
     $code = $_REQUEST["code"];
@@ -17,7 +17,7 @@ $db = new dbObj();
     // Host
     $sqlhost = "SELECT * FROM host WHERE id not in (select hostId from user_host where userId=" . $user["Id"] . ") order by name";
     $qhost = mysqli_query($connString, $sqlhost) or die("error to fetch tot hosts data");
-    //$dataHost[] = null;
+    $dataHost = [];
 
     while( $row = mysqli_fetch_assoc($qhost) ) { 
         $dataHost[] = $row;
@@ -324,3 +324,7 @@ function ajaxAction(action) {
     }
 });
 </script>
+
+<?php 
+	CloseDatabase($connString);
+?>

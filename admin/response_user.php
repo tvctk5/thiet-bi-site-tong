@@ -1,10 +1,9 @@
 
 <?php
 	//include connection file 
-	include_once("../connection.php");
-	
-	$db = new dbObj();
-	$connString =  $db->getConnstring();
+	include '../sql/sql-function.php';
+
+	$connString = ConnectDatabse();
 
 	$params = $_REQUEST;
 	
@@ -29,6 +28,9 @@
 	 return;
 	}
 	
+	// Close connection
+	CloseDatabase($connString);
+
 	class User {
 	protected $conn;
 	protected $data = array();
@@ -91,6 +93,7 @@
 		
 		$qtot = mysqli_query($this->conn, $sqlTot) or die("error to fetch tot hosts data");
 		$queryRecords = mysqli_query($this->conn, $sqlRec) or die("error to fetch hosts data");
+		$data = [];
 		
 		while( $row = mysqli_fetch_assoc($queryRecords) ) { 
 			$data[] = $row;
